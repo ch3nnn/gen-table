@@ -1,13 +1,15 @@
 package main
 
 import (
+	"bytes"
 	"flag"
 	"fmt"
 	"html/template"
 	"log"
-	"os"
+	"path"
 	"strings"
 
+	"github.com/duke-git/lancet/v2/fileutil"
 	"github.com/duke-git/lancet/v2/strutil"
 	"gorm.io/driver/clickhouse"
 	"gorm.io/driver/mysql"
@@ -114,8 +116,9 @@ func main() {
 				return "int64"
 			},
 			// 统一日期类型为 sql.NullTime
-			"datetime": func(columnType gorm.ColumnType) (dataType string) { return "*time.Time" },
-			"json":     func(columnType gorm.ColumnType) (dataType string) { return "datatypes.JSON" },
+			"datetime":  func(columnType gorm.ColumnType) (dataType string) { return "*time.Time" },
+			"timestamp": func(columnType gorm.ColumnType) (dataType string) { return "*time.Time" },
+			"json":      func(columnType gorm.ColumnType) (dataType string) { return "datatypes.JSON" },
 		})
 
 	// 自定义模型结体字段的标签
@@ -138,7 +141,7 @@ func main() {
 
 	// 创建模型的方法,生成文件在 query 目录; 先创建结果不会被后创建的覆盖
 	g.ApplyBasic(models...)
-	//g.Execute()
+	g.Execute()
 
 }
 
@@ -206,10 +209,8 @@ func genModels(g *gen.Generator, db *gorm.DB, tableSting string) (models []inter
 		model := g.GenerateModel(tableName, modelOpt()...)
 		models[i] = model
 		if isGenCRUD {
-			template.Must(template.New("test").Funcs(map[string]any{
-				"CamelCase":  strutil.CamelCase,
-				"LowerFirst": strutil.LowerFirst,
-			}).Parse(interfaceTmpl)).Execute(os.Stdout, model)
+			output(interfaceTmpl, model.FileName+".gen.go", model)
+			output(daoTmpl, model.FileName+".go", model)
 		}
 
 	}
@@ -217,16 +218,40 @@ func genModels(g *gen.Generator, db *gorm.DB, tableSting string) (models []inter
 	return models, nil
 }
 
-//  -dsn "root:gY3-Okw-Z9H-M2F@tcp(192.168.16.7:3306)/proxy_bmt?charset=utf8mb4&parseTime=True&loc=Local"  -updateTimeField "mtime" -createTimeField "ctime" -outPath "../../../internal/dal"
+func output(tmpl, fileName string, data interface{}) error {
+	var buf bytes.Buffer
+
+	funcMap := map[string]any{
+		"CamelCase":  strutil.CamelCase,
+		"LowerFirst": strutil.LowerFirst,
+	}
+
+	t, err := template.New(tmpl).Funcs(funcMap).Parse(tmpl)
+	if err != nil {
+		return err
+	}
+
+	if err := t.Execute(&buf, data); err != nil {
+		return err
+	}
+
+	if err := fileutil.CreateDir(path.Join(outPath, "dao")); err != nil {
+		return err
+	}
+	return fileutil.WriteBytesToFile(path.Join(outPath, "dao", fileName), buf.Bytes())
+}
 
 const interfaceTmpl = `
-{{ $modelStructName := .ModelStructName }}
+package dao
+
+{{ $modelStructNameLowerFirst := .ModelStructName | LowerFirst }}
+{{ $modelStructName := .ModelStructName}}
 
 
 
 var _ I{{.ModelStructName}} = (*{{.ModelStructName}}Dao)(nil)
 
-type I{{.ModelStructName}} interface {
+type i{{.ModelStructName}} interface {
 	{{ range .Fields }}
 	WhereBy{{.Name}}({{.ColumnName | CamelCase }} *{{.Type}}) func(dao gen.Dao) gen.Dao{{ end }}
 
@@ -239,16 +264,12 @@ type I{{.ModelStructName}} interface {
 	SelectPage(offset int, limit int, whereFunc ...func(dao gen.Dao) gen.Dao) ([]*model.{{.ModelStructName}}, int64, error)
 }
 
-type {{.ModelStructName}}Dao struct {
-	{{.ModelStructName | LowerFirst }}Do query.I{{.ModelStructName}}Do
-}
-
-func New{{.ModelStructName}}Dao(ctx context.Context) {{.ModelStructName}}Dao {
-	return {{.ModelStructName}}Dao{ {{.ModelStructName | LowerFirst }}Do: query.{{.ModelStructName}}.WithContext(ctx)}
+type {{ $modelStructNameLowerFirst }}Dao struct {
+	{{ $modelStructNameLowerFirst }}Do query.I{{ .ModelStructName }}Do
 }
 
 {{ range .Fields }}
-func (s *{{$modelStructName}}Dao) WhereBy{{.Name}}({{.ColumnName | CamelCase }} *{{.Type}}) func(dao gen.Dao) gen.Dao {
+func (s *{{ $modelStructNameLowerFirst }}Dao) WhereBy{{.Name}}({{.ColumnName | CamelCase }} *{{.Type}}) func(dao gen.Dao) gen.Dao {
 	return func(dao gen.Dao) gen.Dao {
 		if {{.ColumnName | CamelCase }} != nil {
 			return dao.Where(query.{{$modelStructName}}.{{.Name}}.Eq(*{{.ColumnName | CamelCase }}))
@@ -259,26 +280,26 @@ func (s *{{$modelStructName}}Dao) WhereBy{{.Name}}({{.ColumnName | CamelCase }} 
 {{ end }}
 
 
-func (s *{{.ModelStructName}}Dao) Create(m *model.{{.ModelStructName}}) (*model.{{.ModelStructName}}, error) {
+func (s *{{ $modelStructNameLowerFirst }}Dao) Create(m *model.{{.ModelStructName}}) (*model.{{.ModelStructName}}, error) {
 	if err := s.{{.ModelStructName| LowerFirst }}Do.Create(m); err != nil {
 		return nil, err
 	}
 	return s.Select(s.WhereByID(&m.ID))
 }
 
-func (s *{{.ModelStructName}}Dao) Select(whereFunc ...func(dao gen.Dao) gen.Dao) (*model.{{.ModelStructName}}, error) {
+func (s *{{ $modelStructNameLowerFirst }}Dao) Select(whereFunc ...func(dao gen.Dao) gen.Dao) (*model.{{.ModelStructName}}, error) {
 	return s.{{.ModelStructName| LowerFirst }}Do.Scopes(whereFunc...).First()
 }
 
-func (s *{{.ModelStructName}}Dao) SelectList(whereFunc ...func(dao gen.Dao) gen.Dao) ([]*model.{{.ModelStructName}}, error) {
+func (s *{{ $modelStructNameLowerFirst }}Dao) SelectList(whereFunc ...func(dao gen.Dao) gen.Dao) ([]*model.{{.ModelStructName}}, error) {
 	return s.{{.ModelStructName| LowerFirst }}Do.Scopes(whereFunc...).Find()
 }
 
-func (s *{{.ModelStructName}}Dao) SelectPage(offset int, limit int, whereFunc ...func(dao gen.Dao) gen.Dao) ([]*model.{{.ModelStructName}}, int64, error) {
+func (s *{{ $modelStructNameLowerFirst }}Dao) SelectPage(offset int, limit int, whereFunc ...func(dao gen.Dao) gen.Dao) ([]*model.{{.ModelStructName}}, int64, error) {
 	return s.{{.ModelStructName| LowerFirst }}Do.Scopes(whereFunc...).FindByPage(offset, limit)
 }
 
-func (s *{{.ModelStructName}}Dao) Update(m interface{}, whereFunc ...func(dao gen.Dao) gen.Dao) (*model.{{.ModelStructName}}, error) {
+func (s *{{ $modelStructNameLowerFirst }}Dao) Update(m interface{}, whereFunc ...func(dao gen.Dao) gen.Dao) (*model.{{.ModelStructName}}, error) {
 	toMap, err := structs.ToMap(m)
 	if err != nil {
 		return nil, err
@@ -291,17 +312,41 @@ func (s *{{.ModelStructName}}Dao) Update(m interface{}, whereFunc ...func(dao ge
 	return s.Select(whereFunc...)
 }
 
-func (s *{{.ModelStructName}}Dao) Delete(whereFunc ...func(dao gen.Dao) gen.Dao) error {
+func (s *{{ $modelStructNameLowerFirst }}Dao) Delete(whereFunc ...func(dao gen.Dao) gen.Dao) error {
 	if _, err := s.{{.ModelStructName| LowerFirst }}Do.Scopes(whereFunc...).Delete(); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (s *{{.ModelStructName}}Dao) DeletePhysical(whereFunc ...func(dao gen.Dao) gen.Dao) error {
+func (s *{{ $modelStructNameLowerFirst }}Dao) DeletePhysical(whereFunc ...func(dao gen.Dao) gen.Dao) error {
 	if _, err := s.{{.ModelStructName| LowerFirst }}Do.Unscoped().Scopes(whereFunc...).Delete(); err != nil {
 		return err
 	}
 	return nil
+}
+
+`
+
+const daoTmpl = `
+package dao
+
+type (
+	I{{ .ModelStructName }} interface {
+		i{{ .ModelStructName }}
+	}
+
+	{{ .ModelStructName }}Dao struct {
+		{{ .ModelStructName | LowerFirst }}Dao
+	}
+)
+
+func New{{ .ModelStructName }}Dao(ctx context.Context) SiteDao {
+	return {{ .ModelStructName }}Dao{
+		{{ .ModelStructName | LowerFirst }}Dao{
+			{{ .ModelStructName | LowerFirst }}Do: query.{{ .ModelStructName }}.WithContext(ctx),
+		},
+	}
+}
 
 `
