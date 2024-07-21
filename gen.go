@@ -108,6 +108,7 @@ func main() {
 	// 要先于`ApplyBasic`执行
 	g.WithDataTypeMap(
 		map[string]func(columnType gorm.ColumnType) (dataType string){
+			"INTEGER":   func(columnType gorm.ColumnType) (dataType string) { return "int64" },
 			"int":       func(columnType gorm.ColumnType) (dataType string) { return "int64" },
 			"int2":      func(columnType gorm.ColumnType) (dataType string) { return "int64" },
 			"int4":      func(columnType gorm.ColumnType) (dataType string) { return "int64" },
@@ -115,6 +116,7 @@ func main() {
 			"smallint":  func(columnType gorm.ColumnType) (dataType string) { return "int64" },
 			"mediumint": func(columnType gorm.ColumnType) (dataType string) { return "int64" },
 			"bigint":    func(columnType gorm.ColumnType) (dataType string) { return "int64" },
+			"bool":      func(columnType gorm.ColumnType) (dataType string) { return "bool" },
 			"tinyint": func(columnType gorm.ColumnType) (dataType string) {
 				// mysql tinyint(1) 类型 改为 bool
 				ct, _ := columnType.ColumnType()
@@ -266,3 +268,5 @@ func output(tmpl, fileName string, data interface{}) error {
 
 	return nil
 }
+
+// ./gen-table -dsn "example/test.db?_busy_timeout=5000"  -updateTimeField "update_at" -createTimeField "create_at" -tables "site" -isgendao -db "sqlite"   -outPath "example/dal"
