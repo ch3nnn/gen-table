@@ -40,7 +40,8 @@ type {{ $modelStructNameLowerFirst }}Dao struct {
 func (s *{{ $modelStructNameLowerFirst }}Dao) WhereBy{{.Name}}({{.ColumnName | CamelCase }} {{if HasPrefix .Type "*" }}{{.Type}}{{else}}*{{.Type}}{{end}}) func(dao gen.Dao) gen.Dao {
 	return func(dao gen.Dao) gen.Dao {
 		if {{.ColumnName | CamelCase }} != nil {
-			return dao.Where(query.{{$modelStructName}}.{{.Name}}.Eq(*{{.ColumnName | CamelCase }}))
+		    {{/* 判断是否 bool 类型 */}}
+		    {{if eq .Type "bool" }}return dao.Where(query.{{$modelStructName}}.{{.Name}}.Is(*{{.ColumnName | CamelCase }})){{else}}return dao.Where(query.{{$modelStructName}}.{{.Name}}.Eq(*{{.ColumnName | CamelCase }})){{end}}
 		}
 		return dao
     }

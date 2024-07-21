@@ -8,6 +8,7 @@ import (
 	"html/template"
 	"log"
 	"path"
+	"path/filepath"
 	"strings"
 
 	"github.com/duke-git/lancet/v2/fileutil"
@@ -251,5 +252,17 @@ func output(tmpl, fileName string, data interface{}) error {
 	if err := fileutil.CreateDir(path.Join(outPath, "dao")); err != nil {
 		return err
 	}
-	return fileutil.WriteBytesToFile(path.Join(outPath, "dao", fileName), buf.Bytes())
+
+	filePath := path.Join(outPath, "dao", fileName)
+	if err := fileutil.WriteBytesToFile(filePath, buf.Bytes()); err != nil {
+		return err
+	}
+
+	abs, err := filepath.Abs(filePath)
+	if err != nil {
+		return err
+	}
+	log.Print("generate dao file:", abs)
+
+	return nil
 }
