@@ -1,0 +1,95 @@
+// Code generated. DO NOT EDIT.
+// Code generated. DO NOT EDIT.
+// Code generated. DO NOT EDIT.
+
+package dao
+
+
+import (
+	"time"
+
+	"github.com/duke-git/lancet/v2/structs"
+	"gorm.io/gen"
+)
+
+
+{{ $modelStructNameLowerFirst := .ModelStructName | LowerFirst }}
+{{ $modelStructName := .ModelStructName}}
+
+
+var _ I{{.ModelStructName}} = (*{{.ModelStructName}}Dao)(nil)
+
+type i{{.ModelStructName}} interface {
+	{{ range .Fields }}
+	WhereBy{{.Name}}({{.ColumnName | CamelCase }} {{if HasPrefix .Type "*" }}{{.Type}}{{else}}*{{.Type}}{{end}}) func(dao gen.Dao) gen.Dao{{ end }}
+
+	Create(m *model.{{.ModelStructName}}) (*model.{{.ModelStructName}}, error)
+	Delete(whereFunc ...func(dao gen.Dao) gen.Dao) error
+	DeletePhysical(whereFunc ...func(dao gen.Dao) gen.Dao) error
+	Update(m interface{}, whereFunc ...func(dao gen.Dao) gen.Dao) (*model.{{.ModelStructName}}, error)
+	Select(whereFunc ...func(dao gen.Dao) gen.Dao) (*model.{{.ModelStructName}}, error)
+	SelectList(whereFunc ...func(dao gen.Dao) gen.Dao) ([]*model.{{.ModelStructName}}, error)
+	SelectPage(offset int, limit int, whereFunc ...func(dao gen.Dao) gen.Dao) ([]*model.{{.ModelStructName}}, int64, error)
+}
+
+type {{ $modelStructNameLowerFirst }}Dao struct {
+	{{ $modelStructNameLowerFirst }}Do query.I{{ .ModelStructName }}Do
+}
+
+{{ range .Fields }}
+func (s *{{ $modelStructNameLowerFirst }}Dao) WhereBy{{.Name}}({{.ColumnName | CamelCase }} {{if HasPrefix .Type "*" }}{{.Type}}{{else}}*{{.Type}}{{end}}) func(dao gen.Dao) gen.Dao {
+	return func(dao gen.Dao) gen.Dao {
+		if {{.ColumnName | CamelCase }} != nil {
+			return dao.Where(query.{{$modelStructName}}.{{.Name}}.Eq(*{{.ColumnName | CamelCase }}))
+		}
+		return dao
+    }
+}
+{{ end }}
+
+
+func (s *{{ $modelStructNameLowerFirst }}Dao) Create(m *model.{{.ModelStructName}}) (*model.{{.ModelStructName}}, error) {
+	if err := s.{{.ModelStructName| LowerFirst }}Do.Create(m); err != nil {
+		return nil, err
+	}
+	return s.Select(s.WhereByID(&m.ID))
+}
+
+func (s *{{ $modelStructNameLowerFirst }}Dao) Select(whereFunc ...func(dao gen.Dao) gen.Dao) (*model.{{.ModelStructName}}, error) {
+	return s.{{.ModelStructName| LowerFirst }}Do.Scopes(whereFunc...).First()
+}
+
+func (s *{{ $modelStructNameLowerFirst }}Dao) SelectList(whereFunc ...func(dao gen.Dao) gen.Dao) ([]*model.{{.ModelStructName}}, error) {
+	return s.{{.ModelStructName| LowerFirst }}Do.Scopes(whereFunc...).Find()
+}
+
+func (s *{{ $modelStructNameLowerFirst }}Dao) SelectPage(offset int, limit int, whereFunc ...func(dao gen.Dao) gen.Dao) ([]*model.{{.ModelStructName}}, int64, error) {
+	return s.{{.ModelStructName| LowerFirst }}Do.Scopes(whereFunc...).FindByPage(offset, limit)
+}
+
+func (s *{{ $modelStructNameLowerFirst }}Dao) Update(m interface{}, whereFunc ...func(dao gen.Dao) gen.Dao) (*model.{{.ModelStructName}}, error) {
+	toMap, err := structs.ToMap(m)
+	if err != nil {
+		return nil, err
+	}
+
+	if _, err := s.{{.ModelStructName| LowerFirst }}Do.Scopes(whereFunc...).Updates(toMap); err != nil {
+		return nil, err
+	}
+
+	return s.Select(whereFunc...)
+}
+
+func (s *{{ $modelStructNameLowerFirst }}Dao) Delete(whereFunc ...func(dao gen.Dao) gen.Dao) error {
+	if _, err := s.{{.ModelStructName| LowerFirst }}Do.Scopes(whereFunc...).Delete(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *{{ $modelStructNameLowerFirst }}Dao) DeletePhysical(whereFunc ...func(dao gen.Dao) gen.Dao) error {
+	if _, err := s.{{.ModelStructName| LowerFirst }}Do.Unscoped().Scopes(whereFunc...).Delete(); err != nil {
+		return err
+	}
+	return nil
+}

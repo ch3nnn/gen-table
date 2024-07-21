@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	_ "embed"
 	"flag"
 	"fmt"
 	"html/template"
@@ -20,6 +21,12 @@ import (
 	"gorm.io/gen/field"
 	"gorm.io/gorm"
 )
+
+//go:embed tmpl/gen.tmpl
+var genTmpl string
+
+//go:embed tmpl/dao.tmpl
+var genDaoTmpl string
 
 // DBType database type
 type DBType string
@@ -43,7 +50,7 @@ var (
 	createTimeFieldName string
 	deleteTimeFieldName string
 
-	isGenCRUD bool
+	isgendao bool
 )
 
 func init() {
@@ -54,7 +61,7 @@ func init() {
 	flag.StringVar(&updateTimeFieldName, "updateTimeField", "", `auto update time field name`)
 	flag.StringVar(&createTimeFieldName, "createTimeField", "", `auto create time field name`)
 	flag.StringVar(&deleteTimeFieldName, "deleteField", "", `delete time field name`)
-	flag.BoolVar(&isGenCRUD, "isGenCRUD", false, `is gen curd func`)
+	flag.BoolVar(&isgendao, "isgendao", false, `generate curd func dao`)
 
 	flag.Parse()
 
@@ -173,6 +180,7 @@ func connectDB(t DBType, dsn string) (*gorm.DB, error) {
 	if dsn == "" {
 		return nil, fmt.Errorf("dsn cannot be empty")
 	}
+	log.Print("dsn: ", dsn)
 
 	switch t {
 	case dbMySQL:
@@ -208,9 +216,13 @@ func genModels(g *gen.Generator, db *gorm.DB, tableSting string) (models []inter
 	for i, tableName := range tables {
 		model := g.GenerateModel(tableName, modelOpt()...)
 		models[i] = model
-		if isGenCRUD {
-			output(interfaceTmpl, model.FileName+".gen.go", model)
-			output(daoTmpl, model.FileName+".go", model)
+		if isgendao {
+			if err := output(genTmpl, model.FileName+".gen.go", model); err != nil {
+				return nil, err
+			}
+			if err := output(genDaoTmpl, model.FileName+".go", model); err != nil {
+				return nil, err
+			}
 		}
 
 	}
@@ -224,6 +236,7 @@ func output(tmpl, fileName string, data interface{}) error {
 	funcMap := map[string]any{
 		"CamelCase":  strutil.CamelCase,
 		"LowerFirst": strutil.LowerFirst,
+		"HasPrefix":  strings.HasPrefix,
 	}
 
 	t, err := template.New(tmpl).Funcs(funcMap).Parse(tmpl)
@@ -240,113 +253,3 @@ func output(tmpl, fileName string, data interface{}) error {
 	}
 	return fileutil.WriteBytesToFile(path.Join(outPath, "dao", fileName), buf.Bytes())
 }
-
-const interfaceTmpl = `
-package dao
-
-{{ $modelStructNameLowerFirst := .ModelStructName | LowerFirst }}
-{{ $modelStructName := .ModelStructName}}
-
-
-
-var _ I{{.ModelStructName}} = (*{{.ModelStructName}}Dao)(nil)
-
-type i{{.ModelStructName}} interface {
-	{{ range .Fields }}
-	WhereBy{{.Name}}({{.ColumnName | CamelCase }} *{{.Type}}) func(dao gen.Dao) gen.Dao{{ end }}
-
-	Create(m *model.{{.ModelStructName}}) (*model.{{.ModelStructName}}, error)
-	Delete(whereFunc ...func(dao gen.Dao) gen.Dao) error
-	DeletePhysical(whereFunc ...func(dao gen.Dao) gen.Dao) error
-	Update(m interface{}, whereFunc ...func(dao gen.Dao) gen.Dao) (*model.{{.ModelStructName}}, error)
-	Select(whereFunc ...func(dao gen.Dao) gen.Dao) (*model.{{.ModelStructName}}, error)
-	SelectList(whereFunc ...func(dao gen.Dao) gen.Dao) ([]*model.{{.ModelStructName}}, error)
-	SelectPage(offset int, limit int, whereFunc ...func(dao gen.Dao) gen.Dao) ([]*model.{{.ModelStructName}}, int64, error)
-}
-
-type {{ $modelStructNameLowerFirst }}Dao struct {
-	{{ $modelStructNameLowerFirst }}Do query.I{{ .ModelStructName }}Do
-}
-
-{{ range .Fields }}
-func (s *{{ $modelStructNameLowerFirst }}Dao) WhereBy{{.Name}}({{.ColumnName | CamelCase }} *{{.Type}}) func(dao gen.Dao) gen.Dao {
-	return func(dao gen.Dao) gen.Dao {
-		if {{.ColumnName | CamelCase }} != nil {
-			return dao.Where(query.{{$modelStructName}}.{{.Name}}.Eq(*{{.ColumnName | CamelCase }}))
-		}
-		return dao
-    }
-}
-{{ end }}
-
-
-func (s *{{ $modelStructNameLowerFirst }}Dao) Create(m *model.{{.ModelStructName}}) (*model.{{.ModelStructName}}, error) {
-	if err := s.{{.ModelStructName| LowerFirst }}Do.Create(m); err != nil {
-		return nil, err
-	}
-	return s.Select(s.WhereByID(&m.ID))
-}
-
-func (s *{{ $modelStructNameLowerFirst }}Dao) Select(whereFunc ...func(dao gen.Dao) gen.Dao) (*model.{{.ModelStructName}}, error) {
-	return s.{{.ModelStructName| LowerFirst }}Do.Scopes(whereFunc...).First()
-}
-
-func (s *{{ $modelStructNameLowerFirst }}Dao) SelectList(whereFunc ...func(dao gen.Dao) gen.Dao) ([]*model.{{.ModelStructName}}, error) {
-	return s.{{.ModelStructName| LowerFirst }}Do.Scopes(whereFunc...).Find()
-}
-
-func (s *{{ $modelStructNameLowerFirst }}Dao) SelectPage(offset int, limit int, whereFunc ...func(dao gen.Dao) gen.Dao) ([]*model.{{.ModelStructName}}, int64, error) {
-	return s.{{.ModelStructName| LowerFirst }}Do.Scopes(whereFunc...).FindByPage(offset, limit)
-}
-
-func (s *{{ $modelStructNameLowerFirst }}Dao) Update(m interface{}, whereFunc ...func(dao gen.Dao) gen.Dao) (*model.{{.ModelStructName}}, error) {
-	toMap, err := structs.ToMap(m)
-	if err != nil {
-		return nil, err
-	}
-
-	if _, err := s.{{.ModelStructName| LowerFirst }}Do.Scopes(whereFunc...).Updates(toMap); err != nil {
-		return nil, err
-	}
-
-	return s.Select(whereFunc...)
-}
-
-func (s *{{ $modelStructNameLowerFirst }}Dao) Delete(whereFunc ...func(dao gen.Dao) gen.Dao) error {
-	if _, err := s.{{.ModelStructName| LowerFirst }}Do.Scopes(whereFunc...).Delete(); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (s *{{ $modelStructNameLowerFirst }}Dao) DeletePhysical(whereFunc ...func(dao gen.Dao) gen.Dao) error {
-	if _, err := s.{{.ModelStructName| LowerFirst }}Do.Unscoped().Scopes(whereFunc...).Delete(); err != nil {
-		return err
-	}
-	return nil
-}
-
-`
-
-const daoTmpl = `
-package dao
-
-type (
-	I{{ .ModelStructName }} interface {
-		i{{ .ModelStructName }}
-	}
-
-	{{ .ModelStructName }}Dao struct {
-		{{ .ModelStructName | LowerFirst }}Dao
-	}
-)
-
-func New{{ .ModelStructName }}Dao(ctx context.Context) SiteDao {
-	return {{ .ModelStructName }}Dao{
-		{{ .ModelStructName | LowerFirst }}Dao{
-			{{ .ModelStructName | LowerFirst }}Do: query.{{ .ModelStructName }}.WithContext(ctx),
-		},
-	}
-}
-
-`

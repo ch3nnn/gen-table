@@ -1,0 +1,23 @@
+package dao
+
+import (
+	"context"
+)
+
+type (
+	I{{ .ModelStructName }} interface {
+		i{{ .ModelStructName }}
+	}
+
+	{{ .ModelStructName }}Dao struct {
+		{{ .ModelStructName | LowerFirst }}Dao
+	}
+)
+
+func New{{ .ModelStructName }}Dao(ctx context.Context) SiteDao {
+	return {{ .ModelStructName }}Dao{
+		{{ .ModelStructName | LowerFirst }}Dao{
+			{{ .ModelStructName | LowerFirst }}Do: query.{{ .ModelStructName }}.WithContext(ctx),
+		},
+	}
+}
