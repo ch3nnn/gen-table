@@ -21,6 +21,7 @@ type Site struct {
 	CreatedAt   *time.Time `gorm:"column:created_at;type:datetime;not null;default:CURRENT_TIMESTAMP not null" json:"created_at"`
 	UpdatedAt   *time.Time `gorm:"column:updated_at;type:datetime" json:"updated_at"`
 	IsUsed      bool       `gorm:"column:is_used;type:bool;default:false" json:"is_used"`
+	Type        string     `gorm:"column:type;type:varchar(50)" json:"type"`
 }
 
 // TableName Site's table name

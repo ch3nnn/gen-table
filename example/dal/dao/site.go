@@ -2,8 +2,6 @@ package dao
 
 import (
 	"context"
-
-	"gen-table/example/dal/query"
 )
 
 type (

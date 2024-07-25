@@ -21,7 +21,7 @@ var _ I{{.ModelStructName}} = (*{{.ModelStructName}}Dao)(nil)
 
 type i{{.ModelStructName}} interface {
 	{{ range .Fields }}
-	WhereBy{{.Name}}({{.ColumnName | CamelCase }} {{if HasPrefix .Type "*" }}{{.Type}}{{else}}*{{.Type}}{{end}}) func(dao gen.Dao) gen.Dao{{ end }}
+	WhereBy{{.Name}}({{.ColumnName | CamelCase | GoKeywordCase }} {{if HasPrefix .Type "*" }}{{.Type}}{{else}}*{{.Type}}{{end}}) func(dao gen.Dao) gen.Dao{{ end }}
 
 	Create(m *model.{{.ModelStructName}}) (*model.{{.ModelStructName}}, error)
 	Delete(whereFunc ...func(dao gen.Dao) gen.Dao) error
@@ -37,11 +37,10 @@ type {{ $modelStructNameLowerFirst }}Dao struct {
 }
 
 {{ range .Fields }}
-func (s *{{ $modelStructNameLowerFirst }}Dao) WhereBy{{.Name}}({{.ColumnName | CamelCase }} {{if HasPrefix .Type "*" }}{{.Type}}{{else}}*{{.Type}}{{end}}) func(dao gen.Dao) gen.Dao {
+func (s *{{ $modelStructNameLowerFirst }}Dao) WhereBy{{.Name}}({{  .ColumnName | CamelCase | GoKeywordCase }} {{if HasPrefix .Type "*" }}{{.Type}}{{else}}*{{.Type}}{{end}}) func(dao gen.Dao) gen.Dao {
 	return func(dao gen.Dao) gen.Dao {
-		if {{.ColumnName | CamelCase }} != nil {
-		    {{/* 判断是否 bool 类型 */}}
-		    {{if eq .Type "bool" }}return dao.Where(query.{{$modelStructName}}.{{.Name}}.Is(*{{.ColumnName | CamelCase }})){{else}}return dao.Where(query.{{$modelStructName}}.{{.Name}}.Eq(*{{.ColumnName | CamelCase }})){{end}}
+		if {{.ColumnName | CamelCase | GoKeywordCase}} != nil {
+		    {{if eq .Type "bool" }}return dao.Where(query.{{$modelStructName}}.{{.Name}}.Is(*{{.ColumnName | CamelCase | GoKeywordCase }})){{else}}return dao.Where(query.{{$modelStructName}}.{{.Name}}.Eq(*{{.ColumnName | CamelCase | GoKeywordCase }})){{end}}
 		}
 		return dao
     }

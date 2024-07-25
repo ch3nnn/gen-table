@@ -36,6 +36,7 @@ func newSite(db *gorm.DB, opts ...gen.DOOption) site {
 	_site.CreatedAt = field.NewTime(tableName, "created_at")
 	_site.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_site.IsUsed = field.NewBool(tableName, "is_used")
+	_site.Type = field.NewString(tableName, "type")
 
 	_site.fillFieldMap()
 
@@ -55,6 +56,7 @@ type site struct {
 	CreatedAt   field.Time
 	UpdatedAt   field.Time
 	IsUsed      field.Bool
+	Type        field.String
 
 	fieldMap map[string]field.Expr
 }
@@ -80,6 +82,7 @@ func (s *site) updateTableName(table string) *site {
 	s.CreatedAt = field.NewTime(table, "created_at")
 	s.UpdatedAt = field.NewTime(table, "updated_at")
 	s.IsUsed = field.NewBool(table, "is_used")
+	s.Type = field.NewString(table, "type")
 
 	s.fillFieldMap()
 
@@ -104,7 +107,7 @@ func (s *site) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (s *site) fillFieldMap() {
-	s.fieldMap = make(map[string]field.Expr, 9)
+	s.fieldMap = make(map[string]field.Expr, 10)
 	s.fieldMap["id"] = s.ID
 	s.fieldMap["category_id"] = s.CategoryID
 	s.fieldMap["title"] = s.Title
@@ -114,6 +117,7 @@ func (s *site) fillFieldMap() {
 	s.fieldMap["created_at"] = s.CreatedAt
 	s.fieldMap["updated_at"] = s.UpdatedAt
 	s.fieldMap["is_used"] = s.IsUsed
+	s.fieldMap["type"] = s.Type
 }
 
 func (s site) clone(db *gorm.DB) site {

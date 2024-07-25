@@ -26,6 +26,7 @@ type iSite interface {
 	WhereByCreatedAt(createdAt *time.Time) func(dao gen.Dao) gen.Dao
 	WhereByUpdatedAt(updatedAt *time.Time) func(dao gen.Dao) gen.Dao
 	WhereByIsUsed(isUsed *bool) func(dao gen.Dao) gen.Dao
+	WhereByType(type_ *string) func(dao gen.Dao) gen.Dao
 
 	Create(m *model.Site) (*model.Site, error)
 	Delete(whereFunc ...func(dao gen.Dao) gen.Dao) error
@@ -43,7 +44,6 @@ type siteDao struct {
 func (s *siteDao) WhereByID(id *int64) func(dao gen.Dao) gen.Dao {
 	return func(dao gen.Dao) gen.Dao {
 		if id != nil {
-
 			return dao.Where(query.Site.ID.Eq(*id))
 		}
 		return dao
@@ -53,7 +53,6 @@ func (s *siteDao) WhereByID(id *int64) func(dao gen.Dao) gen.Dao {
 func (s *siteDao) WhereByCategoryID(categoryId *int64) func(dao gen.Dao) gen.Dao {
 	return func(dao gen.Dao) gen.Dao {
 		if categoryId != nil {
-
 			return dao.Where(query.Site.CategoryID.Eq(*categoryId))
 		}
 		return dao
@@ -63,7 +62,6 @@ func (s *siteDao) WhereByCategoryID(categoryId *int64) func(dao gen.Dao) gen.Dao
 func (s *siteDao) WhereByTitle(title *string) func(dao gen.Dao) gen.Dao {
 	return func(dao gen.Dao) gen.Dao {
 		if title != nil {
-
 			return dao.Where(query.Site.Title.Eq(*title))
 		}
 		return dao
@@ -73,7 +71,6 @@ func (s *siteDao) WhereByTitle(title *string) func(dao gen.Dao) gen.Dao {
 func (s *siteDao) WhereByThumb(thumb *string) func(dao gen.Dao) gen.Dao {
 	return func(dao gen.Dao) gen.Dao {
 		if thumb != nil {
-
 			return dao.Where(query.Site.Thumb.Eq(*thumb))
 		}
 		return dao
@@ -83,7 +80,6 @@ func (s *siteDao) WhereByThumb(thumb *string) func(dao gen.Dao) gen.Dao {
 func (s *siteDao) WhereByDescription(description *string) func(dao gen.Dao) gen.Dao {
 	return func(dao gen.Dao) gen.Dao {
 		if description != nil {
-
 			return dao.Where(query.Site.Description.Eq(*description))
 		}
 		return dao
@@ -93,7 +89,6 @@ func (s *siteDao) WhereByDescription(description *string) func(dao gen.Dao) gen.
 func (s *siteDao) WhereByURL(url *string) func(dao gen.Dao) gen.Dao {
 	return func(dao gen.Dao) gen.Dao {
 		if url != nil {
-
 			return dao.Where(query.Site.URL.Eq(*url))
 		}
 		return dao
@@ -103,7 +98,6 @@ func (s *siteDao) WhereByURL(url *string) func(dao gen.Dao) gen.Dao {
 func (s *siteDao) WhereByCreatedAt(createdAt *time.Time) func(dao gen.Dao) gen.Dao {
 	return func(dao gen.Dao) gen.Dao {
 		if createdAt != nil {
-
 			return dao.Where(query.Site.CreatedAt.Eq(*createdAt))
 		}
 		return dao
@@ -113,7 +107,6 @@ func (s *siteDao) WhereByCreatedAt(createdAt *time.Time) func(dao gen.Dao) gen.D
 func (s *siteDao) WhereByUpdatedAt(updatedAt *time.Time) func(dao gen.Dao) gen.Dao {
 	return func(dao gen.Dao) gen.Dao {
 		if updatedAt != nil {
-
 			return dao.Where(query.Site.UpdatedAt.Eq(*updatedAt))
 		}
 		return dao
@@ -123,8 +116,16 @@ func (s *siteDao) WhereByUpdatedAt(updatedAt *time.Time) func(dao gen.Dao) gen.D
 func (s *siteDao) WhereByIsUsed(isUsed *bool) func(dao gen.Dao) gen.Dao {
 	return func(dao gen.Dao) gen.Dao {
 		if isUsed != nil {
-
 			return dao.Where(query.Site.IsUsed.Is(*isUsed))
+		}
+		return dao
+	}
+}
+
+func (s *siteDao) WhereByType(type_ *string) func(dao gen.Dao) gen.Dao {
+	return func(dao gen.Dao) gen.Dao {
+		if type_ != nil {
+			return dao.Where(query.Site.Type.Eq(*type_))
 		}
 		return dao
 	}

@@ -5,6 +5,7 @@ import (
 	_ "embed"
 	"flag"
 	"fmt"
+	"go/token"
 	"html/template"
 	"log"
 	"path"
@@ -240,6 +241,12 @@ func output(tmpl, fileName string, data interface{}) error {
 		"CamelCase":  strutil.CamelCase,
 		"LowerFirst": strutil.LowerFirst,
 		"HasPrefix":  strings.HasPrefix,
+		"GoKeywordCase": func(s string) string {
+			if token.IsKeyword(s) {
+				return s + "_"
+			}
+			return s
+		},
 	}
 
 	t, err := template.New(tmpl).Funcs(funcMap).Parse(tmpl)
