@@ -26,11 +26,17 @@ func TestNewSiteDao(t *testing.T) {
 	query.SetDefault(db)
 
 	dao := NewSiteDao(context.Background())
-	sites, err := dao.SelectList(dao.WhereByID(pointer.Of(int64(1))))
+	sites, err := dao.FindAll(dao.WhereByID(pointer.Of(int64(1))))
 	if err != nil {
 		return
 	}
 
 	fmt.Println(sites[0])
+
+	findPage, count, err := dao.FindPage(0, 1, nil, dao.WhereByID(pointer.Of(int64(1))))
+	if err != nil {
+		return
+	}
+	fmt.Println(findPage, count)
 
 }
