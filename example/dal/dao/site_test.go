@@ -14,6 +14,7 @@ import (
 	"github.com/duke-git/lancet/v2/pointer"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/driver/sqlite"
+	"gorm.io/gen"
 	"gorm.io/gorm"
 )
 
@@ -30,13 +31,17 @@ func TestMain(m *testing.M) {
 
 func TestFindOne(t *testing.T) {
 	dao := NewSiteDao(context.Background())
-	findOne, err := dao.FindOne(dao.WhereByID(pointer.Of(int64(1))))
+	findOne, err := dao.FindOne([]func(dao gen.Dao) gen.Dao{
+		dao.WhereByID(pointer.Of(int64(1))),
+		dao.WhereByTitle(pointer.Of("ch3nnn Github 开源")),
+		dao.WhereByURL(pointer.Of("https://github.com/ch3nnn")),
+	}...)
 
 	assert.NoError(t, err)
 	assert.Equal(t, findOne.ID, int64(1))
 	assert.Equal(t, findOne.Title, "ch3nnn Github 开源")
-
 }
+
 func TestFindAll(t *testing.T) {
 	dao := NewSiteDao(context.Background())
 	sites, err := dao.FindAll(dao.WhereByID(pointer.Of(int64(1))))

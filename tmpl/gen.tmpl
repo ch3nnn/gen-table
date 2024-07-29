@@ -17,8 +17,20 @@ import (
 var _ I{{.ModelStructName}} = (*{{.ModelStructName}}Dao)(nil)
 
 type i{{.ModelStructName}} interface {
+
+	// ------------------------------------
+	// ColumnName
+	// ------------------------------------
+
+	// ------------------------ {{ .ModelStructName }} {{ .TableComment }} ---------------------------------
 	{{ range .Fields }}
 	WhereBy{{.Name}}({{.ColumnName | CamelCase | GoKeywordCase }} {{if HasPrefix .Type "*" }}{{.Type}}{{else}}*{{.Type}}{{end}}) func(dao gen.Dao) gen.Dao{{ end }}
+
+	// ------------------------------------
+	// Generate Function
+	// ------------------------------------
+
+	// ------------------------ {{.ModelStructName}} {{ .TableComment }} ---------------------------------
 
 	Create(m *model.{{.ModelStructName}}) (*model.{{.ModelStructName}}, error)
 	Delete(whereFunc ...func(dao gen.Dao) gen.Dao) error

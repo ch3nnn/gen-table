@@ -220,13 +220,33 @@ func genModels(g *gen.Generator, db *gorm.DB, tableSting string) (models []inter
 	for i, tableName := range tables {
 		model := g.GenerateModel(tableName, modelOpt()...)
 		models[i] = model
+
+		// Generate Dao
 		if isgendao {
-			if err := output(genTmpl, model.FileName+".gen.go", model); err != nil {
-				return nil, err
+			daoPath := path.Join(outPath, "dao")
+			if !fileutil.IsExist(daoPath) {
+				if err := fileutil.CreateDir(daoPath); err != nil {
+					return nil, err
+				}
 			}
-			if err := output(genDaoTmpl, model.FileName+".go", model); err != nil {
-				return nil, err
-			}
+
+			go func() {
+				fileName := model.FileName + ".gen.go"
+				if err := output(genTmpl, fileName, model); err != nil {
+					log.Fatalln(err)
+				}
+			}()
+			go func() {
+				fileName := model.FileName + ".go"
+				if fileutil.IsExist(path.Join(outPath, "dao", fileName)) {
+					log.Printf("generate dao file: %s exists, ignored generation \n", fileName)
+					return
+				}
+
+				if err := output(genDaoTmpl, fileName, model); err != nil {
+					log.Fatalln(err)
+				}
+			}()
 		}
 
 	}
@@ -234,9 +254,8 @@ func genModels(g *gen.Generator, db *gorm.DB, tableSting string) (models []inter
 	return models, nil
 }
 
-func output(tmpl, fileName string, data interface{}) error {
-	var buf bytes.Buffer
-
+// Generate Dao output file path
+func output(tmplText, fileName string, data interface{}) error {
 	funcMap := map[string]any{
 		"CamelCase":  strutil.CamelCase,
 		"LowerFirst": strutil.LowerFirst,
@@ -249,16 +268,13 @@ func output(tmpl, fileName string, data interface{}) error {
 		},
 	}
 
-	t, err := template.New(tmpl).Funcs(funcMap).Parse(tmpl)
+	tmpl, err := template.New(tmplText).Funcs(funcMap).Parse(tmplText)
 	if err != nil {
 		return err
 	}
 
-	if err := t.Execute(&buf, data); err != nil {
-		return err
-	}
-
-	if err := fileutil.CreateDir(path.Join(outPath, "dao")); err != nil {
+	var buf bytes.Buffer
+	if err := tmpl.Execute(&buf, data); err != nil {
 		return err
 	}
 
@@ -275,5 +291,3 @@ func output(tmpl, fileName string, data interface{}) error {
 
 	return nil
 }
-
-// ./gen-table -dsn "example/test.db?_busy_timeout=5000"  -updateTimeField "update_at" -createTimeField "create_at" -tables "site" -isgendao -db "sqlite"   -outPath "example/dal"

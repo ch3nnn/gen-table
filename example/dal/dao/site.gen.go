@@ -18,6 +18,13 @@ import (
 var _ ISite = (*SiteDao)(nil)
 
 type iSite interface {
+
+	// ------------------------------------
+	// ColumnName
+	// ------------------------------------
+
+	// ------------------------ Site  ---------------------------------
+
 	WhereByID(id *int64) func(dao gen.Dao) gen.Dao
 	WhereByCategoryID(categoryId *int64) func(dao gen.Dao) gen.Dao
 	WhereByTitle(title *string) func(dao gen.Dao) gen.Dao
@@ -28,6 +35,12 @@ type iSite interface {
 	WhereByUpdatedAt(updatedAt *time.Time) func(dao gen.Dao) gen.Dao
 	WhereByIsUsed(isUsed *bool) func(dao gen.Dao) gen.Dao
 	WhereByType(type_ *string) func(dao gen.Dao) gen.Dao
+
+	// ------------------------------------
+	// Generate Function
+	// ------------------------------------
+
+	// ------------------------ Site  ---------------------------------
 
 	Create(m *model.Site) (*model.Site, error)
 	Delete(whereFunc ...func(dao gen.Dao) gen.Dao) error
