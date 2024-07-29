@@ -25,16 +25,16 @@ type iSite interface {
 
 	// ------------------------ Site  ---------------------------------
 
-	WhereByID(id *int64) func(dao gen.Dao) gen.Dao
-	WhereByCategoryID(categoryId *int64) func(dao gen.Dao) gen.Dao
-	WhereByTitle(title *string) func(dao gen.Dao) gen.Dao
-	WhereByThumb(thumb *string) func(dao gen.Dao) gen.Dao
-	WhereByDescription(description *string) func(dao gen.Dao) gen.Dao
-	WhereByURL(url *string) func(dao gen.Dao) gen.Dao
-	WhereByCreatedAt(createdAt *time.Time) func(dao gen.Dao) gen.Dao
-	WhereByUpdatedAt(updatedAt *time.Time) func(dao gen.Dao) gen.Dao
-	WhereByIsUsed(isUsed *bool) func(dao gen.Dao) gen.Dao
-	WhereByType(type_ *string) func(dao gen.Dao) gen.Dao
+	WhereByID(id int64) func(dao gen.Dao) gen.Dao
+	WhereByCategoryID(categoryId int64) func(dao gen.Dao) gen.Dao
+	WhereByTitle(title string) func(dao gen.Dao) gen.Dao
+	WhereByThumb(thumb string) func(dao gen.Dao) gen.Dao
+	WhereByDescription(description string) func(dao gen.Dao) gen.Dao
+	WhereByURL(url string) func(dao gen.Dao) gen.Dao
+	WhereByCreatedAt(createdAt time.Time) func(dao gen.Dao) gen.Dao
+	WhereByUpdatedAt(updatedAt time.Time) func(dao gen.Dao) gen.Dao
+	WhereByIsUsed(isUsed bool) func(dao gen.Dao) gen.Dao
+	WhereByType(type_ string) func(dao gen.Dao) gen.Dao
 
 	// ------------------------------------
 	// Generate Function
@@ -56,93 +56,63 @@ type siteDao struct {
 	siteDo query.ISiteDo
 }
 
-func (s *siteDao) WhereByID(id *int64) func(dao gen.Dao) gen.Dao {
+func (s *siteDao) WhereByID(id int64) func(dao gen.Dao) gen.Dao {
 	return func(dao gen.Dao) gen.Dao {
-		if id != nil {
-			return dao.Where(query.Site.ID.Eq(*id))
-		}
-		return dao
+		return dao.Where(query.Site.ID.Eq(id))
 	}
 }
 
-func (s *siteDao) WhereByCategoryID(categoryId *int64) func(dao gen.Dao) gen.Dao {
+func (s *siteDao) WhereByCategoryID(categoryId int64) func(dao gen.Dao) gen.Dao {
 	return func(dao gen.Dao) gen.Dao {
-		if categoryId != nil {
-			return dao.Where(query.Site.CategoryID.Eq(*categoryId))
-		}
-		return dao
+		return dao.Where(query.Site.CategoryID.Eq(categoryId))
 	}
 }
 
-func (s *siteDao) WhereByTitle(title *string) func(dao gen.Dao) gen.Dao {
+func (s *siteDao) WhereByTitle(title string) func(dao gen.Dao) gen.Dao {
 	return func(dao gen.Dao) gen.Dao {
-		if title != nil {
-			return dao.Where(query.Site.Title.Eq(*title))
-		}
-		return dao
+		return dao.Where(query.Site.Title.Eq(title))
 	}
 }
 
-func (s *siteDao) WhereByThumb(thumb *string) func(dao gen.Dao) gen.Dao {
+func (s *siteDao) WhereByThumb(thumb string) func(dao gen.Dao) gen.Dao {
 	return func(dao gen.Dao) gen.Dao {
-		if thumb != nil {
-			return dao.Where(query.Site.Thumb.Eq(*thumb))
-		}
-		return dao
+		return dao.Where(query.Site.Thumb.Eq(thumb))
 	}
 }
 
-func (s *siteDao) WhereByDescription(description *string) func(dao gen.Dao) gen.Dao {
+func (s *siteDao) WhereByDescription(description string) func(dao gen.Dao) gen.Dao {
 	return func(dao gen.Dao) gen.Dao {
-		if description != nil {
-			return dao.Where(query.Site.Description.Eq(*description))
-		}
-		return dao
+		return dao.Where(query.Site.Description.Eq(description))
 	}
 }
 
-func (s *siteDao) WhereByURL(url *string) func(dao gen.Dao) gen.Dao {
+func (s *siteDao) WhereByURL(url string) func(dao gen.Dao) gen.Dao {
 	return func(dao gen.Dao) gen.Dao {
-		if url != nil {
-			return dao.Where(query.Site.URL.Eq(*url))
-		}
-		return dao
+		return dao.Where(query.Site.URL.Eq(url))
 	}
 }
 
-func (s *siteDao) WhereByCreatedAt(createdAt *time.Time) func(dao gen.Dao) gen.Dao {
+func (s *siteDao) WhereByCreatedAt(createdAt time.Time) func(dao gen.Dao) gen.Dao {
 	return func(dao gen.Dao) gen.Dao {
-		if createdAt != nil {
-			return dao.Where(query.Site.CreatedAt.Eq(*createdAt))
-		}
-		return dao
+		return dao.Where(query.Site.CreatedAt.Eq(createdAt))
 	}
 }
 
-func (s *siteDao) WhereByUpdatedAt(updatedAt *time.Time) func(dao gen.Dao) gen.Dao {
+func (s *siteDao) WhereByUpdatedAt(updatedAt time.Time) func(dao gen.Dao) gen.Dao {
 	return func(dao gen.Dao) gen.Dao {
-		if updatedAt != nil {
-			return dao.Where(query.Site.UpdatedAt.Eq(*updatedAt))
-		}
-		return dao
+		return dao.Where(query.Site.UpdatedAt.Eq(updatedAt))
 	}
 }
 
-func (s *siteDao) WhereByIsUsed(isUsed *bool) func(dao gen.Dao) gen.Dao {
+func (s *siteDao) WhereByIsUsed(isUsed bool) func(dao gen.Dao) gen.Dao {
 	return func(dao gen.Dao) gen.Dao {
-		if isUsed != nil {
-			return dao.Where(query.Site.IsUsed.Is(*isUsed))
-		}
-		return dao
+		return dao.Where(query.Site.IsUsed.Is(isUsed))
 	}
 }
 
-func (s *siteDao) WhereByType(type_ *string) func(dao gen.Dao) gen.Dao {
+func (s *siteDao) WhereByType(type_ string) func(dao gen.Dao) gen.Dao {
 	return func(dao gen.Dao) gen.Dao {
-		if type_ != nil {
-			return dao.Where(query.Site.Type.Eq(*type_))
-		}
-		return dao
+		return dao.Where(query.Site.Type.Eq(type_))
 	}
 }
 
@@ -150,7 +120,7 @@ func (s *siteDao) Create(m *model.Site) (*model.Site, error) {
 	if err := s.siteDo.Create(m); err != nil {
 		return nil, err
 	}
-	return s.FindOne(s.WhereByID(&m.ID))
+	return s.FindOne(s.WhereByID(m.ID))
 }
 
 func (s *siteDao) FindCount(whereFunc ...func(dao gen.Dao) gen.Dao) (int64, error) {

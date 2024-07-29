@@ -24,7 +24,7 @@ type i{{.ModelStructName}} interface {
 
 	// ------------------------ {{ .ModelStructName }} {{ .TableComment }} ---------------------------------
 	{{ range .Fields }}
-	WhereBy{{.Name}}({{.ColumnName | CamelCase | GoKeywordCase }} {{if HasPrefix .Type "*" }}{{.Type}}{{else}}*{{.Type}}{{end}}) func(dao gen.Dao) gen.Dao{{ end }}
+	WhereBy{{.Name}}({{.ColumnName | CamelCase | GoKeywordCase }} {{ .Type | TypeCase }}) func(dao gen.Dao) gen.Dao{{ end }}
 
 	// ------------------------------------
 	// Generate Function
@@ -47,12 +47,9 @@ type {{ $modelStructNameLowerFirst }}Dao struct {
 }
 
 {{ range .Fields }}
-func (s *{{ $modelStructNameLowerFirst }}Dao) WhereBy{{.Name}}({{  .ColumnName | CamelCase | GoKeywordCase }} {{if HasPrefix .Type "*" }}{{.Type}}{{else}}*{{.Type}}{{end}}) func(dao gen.Dao) gen.Dao {
+func (s *{{ $modelStructNameLowerFirst }}Dao) WhereBy{{.Name}}({{  .ColumnName | CamelCase | GoKeywordCase }} {{ .Type | TypeCase }}) func(dao gen.Dao) gen.Dao {
 	return func(dao gen.Dao) gen.Dao {
-		if {{.ColumnName | CamelCase | GoKeywordCase}} != nil {
-		    {{if eq .Type "bool" }}return dao.Where(query.{{$modelStructName}}.{{.Name}}.Is(*{{.ColumnName | CamelCase | GoKeywordCase }})){{else}}return dao.Where(query.{{$modelStructName}}.{{.Name}}.Eq(*{{.ColumnName | CamelCase | GoKeywordCase }})){{end}}
-		}
-		return dao
+		{{if eq .Type "bool" }}return dao.Where(query.{{$modelStructName}}.{{.Name}}.Is({{.ColumnName | CamelCase | GoKeywordCase }})){{else}}return dao.Where(query.{{$modelStructName}}.{{.Name}}.Eq({{.ColumnName | CamelCase | GoKeywordCase }})){{end}}
     }
 }
 {{ end }}
@@ -62,7 +59,7 @@ func (s *{{ $modelStructNameLowerFirst }}Dao) Create(m *model.{{.ModelStructName
 	if err := s.{{.ModelStructName| LowerFirst }}Do.Create(m); err != nil {
 		return nil, err
 	}
-	return s.FindOne(s.WhereByID(&m.ID))
+	return s.FindOne(s.WhereByID(m.ID))
 }
 
 func (s *{{ $modelStructNameLowerFirst }}Dao) FindCount(whereFunc ...func(dao gen.Dao) gen.Dao) (int64, error) {

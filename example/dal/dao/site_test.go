@@ -11,7 +11,6 @@ import (
 
 	"gen-table/example/dal/query"
 
-	"github.com/duke-git/lancet/v2/pointer"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gen"
@@ -32,9 +31,9 @@ func TestMain(m *testing.M) {
 func TestFindOne(t *testing.T) {
 	dao := NewSiteDao(context.Background())
 	findOne, err := dao.FindOne([]func(dao gen.Dao) gen.Dao{
-		dao.WhereByID(pointer.Of(int64(1))),
-		dao.WhereByTitle(pointer.Of("ch3nnn Github 开源")),
-		dao.WhereByURL(pointer.Of("https://github.com/ch3nnn")),
+		dao.WhereByID(1),
+		dao.WhereByTitle("ch3nnn Github 开源"),
+		dao.WhereByURL("https://github.com/ch3nnn"),
 	}...)
 
 	assert.NoError(t, err)
@@ -44,7 +43,7 @@ func TestFindOne(t *testing.T) {
 
 func TestFindAll(t *testing.T) {
 	dao := NewSiteDao(context.Background())
-	sites, err := dao.FindAll(dao.WhereByID(pointer.Of(int64(1))))
+	sites, err := dao.FindAll(dao.WhereByID(1))
 	if err != nil {
 		return
 	}
@@ -55,7 +54,7 @@ func TestFindAll(t *testing.T) {
 
 func TestFindPage(t *testing.T) {
 	dao := NewSiteDao(context.Background())
-	findPage, count, err := dao.FindPage(0, 1, nil, dao.WhereByID(pointer.Of(int64(1))))
+	findPage, count, err := dao.FindPage(0, 1, nil, dao.WhereByID(1))
 	if err != nil {
 		return
 	}

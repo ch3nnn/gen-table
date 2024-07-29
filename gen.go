@@ -259,7 +259,12 @@ func output(tmplText, fileName string, data interface{}) error {
 	funcMap := map[string]any{
 		"CamelCase":  strutil.CamelCase,
 		"LowerFirst": strutil.LowerFirst,
-		"HasPrefix":  strings.HasPrefix,
+		"TypeCase": func(s string) string {
+			if strings.HasPrefix(s, "*") {
+				return s[1:]
+			}
+			return s
+		},
 		"GoKeywordCase": func(s string) string {
 			if token.IsKeyword(s) {
 				return s + "_"
