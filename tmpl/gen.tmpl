@@ -8,6 +8,9 @@ package dao
 import (
 	"time"
 
+    {{ .QueryImportPath }}
+    {{ .ModelImportPath }}
+
 	"github.com/duke-git/lancet/v2/structs"
 	"gorm.io/gen"
 	"gorm.io/gen/field"
@@ -25,6 +28,7 @@ type i{{.ModelStructName}} interface {
 
 	// ------------------------ {{ .ModelStructName }} {{ .TableComment }} ---------------------------------
 	{{ range .Fields }}
+	{{if eq .ColumnComment "" }}{{else}}// {{ .ColumnComment }} {{end}}
 	WhereBy{{.Name}}({{.ColumnName | CamelCase | GoKeywordCase }} {{ .Type | TypeCase }}) func(dao gen.Dao) gen.Dao{{ end }}
 
 	// ------------------------------------
@@ -48,6 +52,7 @@ type {{ $modelStructNameLowerFirst }}Dao struct {
 }
 
 {{ range .Fields }}
+{{if eq .ColumnComment "" }}{{else}}// WhereBy{{.Name}} {{ .ColumnComment }} {{end}}
 func (s *{{ $modelStructNameLowerFirst }}Dao) WhereBy{{.Name}}({{  .ColumnName | CamelCase | GoKeywordCase }} {{ .Type | TypeCase }}) func(dao gen.Dao) gen.Dao {
 	return func(dao gen.Dao) gen.Dao {
 		{{if eq .Type "bool" }}return dao.Where(query.{{$modelStructName}}.{{.Name}}.Is({{.ColumnName | CamelCase | GoKeywordCase }})){{else}}return dao.Where(query.{{$modelStructName}}.{{.Name}}.Eq({{.ColumnName | CamelCase | GoKeywordCase }})){{end}}

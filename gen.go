@@ -8,12 +8,17 @@ import (
 	"go/token"
 	"html/template"
 	"log"
+	"os"
 	"path"
 	"path/filepath"
 	"strings"
 
+	"gen-table/types"
+
 	"github.com/duke-git/lancet/v2/fileutil"
 	"github.com/duke-git/lancet/v2/strutil"
+	"github.com/jinzhu/copier"
+	"golang.org/x/mod/modfile"
 	"gorm.io/driver/clickhouse"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
@@ -70,6 +75,10 @@ func init() {
 }
 
 func main() {
+	if !fileutil.IsExist("./go.mod") {
+		log.Fatalln("current directory not found go.mod file")
+	}
+
 	db, err := connectDB(DBType(db), dsn)
 	if err != nil {
 		log.Fatalln("connect db server fail:", err)
@@ -256,6 +265,25 @@ func genModels(g *gen.Generator, db *gorm.DB, tableSting string) (models []inter
 
 // Generate Dao output file path
 func output(tmplText, fileName string, data interface{}) error {
+	var model types.QueryStructMeta
+	if err := copier.Copy(&model, data); err != nil {
+		log.Fatalln(err)
+	}
+
+	// 读取 go.mod 文件的内容
+	content, err := os.ReadFile("./go.mod")
+	if err != nil {
+		panic(err)
+	}
+	// 解析 go.mod 文件
+	f, err := modfile.Parse("go.mod", content, nil)
+	if err != nil {
+		panic(err)
+	}
+
+	model.QueryImportPath = template.HTML(fmt.Sprintf("\"%s\"", filepath.Join(f.Module.Mod.Path, outPath, "query")))
+	model.ModelImportPath = template.HTML(fmt.Sprintf("\"%s\"", filepath.Join(f.Module.Mod.Path, outPath, "model")))
+
 	funcMap := map[string]any{
 		"CamelCase":  strutil.CamelCase,
 		"LowerFirst": strutil.LowerFirst,
@@ -279,7 +307,7 @@ func output(tmplText, fileName string, data interface{}) error {
 	}
 
 	var buf bytes.Buffer
-	if err := tmpl.Execute(&buf, data); err != nil {
+	if err := tmpl.Execute(&buf, model); err != nil {
 		return err
 	}
 

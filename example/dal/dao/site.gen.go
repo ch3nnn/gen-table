@@ -26,14 +26,23 @@ type iSite interface {
 	// ------------------------ Site  ---------------------------------
 
 	WhereByID(id int64) func(dao gen.Dao) gen.Dao
+
 	WhereByCategoryID(categoryId int64) func(dao gen.Dao) gen.Dao
+
 	WhereByTitle(title string) func(dao gen.Dao) gen.Dao
+
 	WhereByThumb(thumb string) func(dao gen.Dao) gen.Dao
+
 	WhereByDescription(description string) func(dao gen.Dao) gen.Dao
+
 	WhereByURL(url string) func(dao gen.Dao) gen.Dao
+
 	WhereByCreatedAt(createdAt time.Time) func(dao gen.Dao) gen.Dao
+
 	WhereByUpdatedAt(updatedAt time.Time) func(dao gen.Dao) gen.Dao
+
 	WhereByIsUsed(isUsed bool) func(dao gen.Dao) gen.Dao
+
 	WhereByType(type_ string) func(dao gen.Dao) gen.Dao
 
 	// ------------------------------------
