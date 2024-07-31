@@ -8,17 +8,17 @@ import (
 )
 
 type (
-	I{{ .ModelStructName }} interface {
-		i{{ .ModelStructName }}
+	I{{ .ModelStructName }}Dao interface {
+		i{{ .ModelStructName }}Dao
 	}
 
-	{{ .ModelStructName }}Dao struct {
+	custom{{ .ModelStructName }}Dao struct {
 		{{ .ModelStructName | LowerFirst }}Dao
 	}
 )
 
-func New{{ .ModelStructName }}Dao(ctx context.Context) {{ .ModelStructName }}Dao {
-	return {{ .ModelStructName }}Dao{
+func New{{ .ModelStructName }}Dao(ctx context.Context) I{{ .ModelStructName }}Dao {
+	return &custom{{ .ModelStructName }}Dao{
 		{{ .ModelStructName | LowerFirst }}Dao{
 			{{ .ModelStructName | LowerFirst }}Do: query.{{ .ModelStructName }}.WithContext(ctx),
 		},

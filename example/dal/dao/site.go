@@ -7,17 +7,17 @@ import (
 )
 
 type (
-	ISite interface {
-		iSite
+	ISiteDao interface {
+		iSiteDao
 	}
 
-	SiteDao struct {
+	customSiteDao struct {
 		siteDao
 	}
 )
 
-func NewSiteDao(ctx context.Context) SiteDao {
-	return SiteDao{
+func NewSiteDao(ctx context.Context) ISiteDao {
+	return &customSiteDao{
 		siteDao{
 			siteDo: query.Site.WithContext(ctx),
 		},

@@ -18,9 +18,9 @@ import (
 
 {{ $modelStructNameLowerFirst := .ModelStructName | LowerFirst }}
 {{ $modelStructName := .ModelStructName}}
-var _ I{{.ModelStructName}} = (*{{.ModelStructName}}Dao)(nil)
+var _ I{{.ModelStructName}}Dao = (*{{.ModelStructName | LowerFirst }}Dao)(nil)
 
-type i{{.ModelStructName}} interface {
+type i{{.ModelStructName}}Dao interface {
 
 	// ------------------------------------
 	// ColumnName

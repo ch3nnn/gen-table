@@ -15,9 +15,9 @@ import (
 	"gorm.io/gen/field"
 )
 
-var _ ISite = (*SiteDao)(nil)
+var _ ISiteDao = (*siteDao)(nil)
 
-type iSite interface {
+type iSiteDao interface {
 
 	// ------------------------------------
 	// ColumnName
