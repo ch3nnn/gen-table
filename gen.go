@@ -53,9 +53,9 @@ var (
 	tables  string
 	db      string
 
-	updateTimeFieldName string
-	createTimeFieldName string
-	deleteTimeFieldName string
+	updateTimeFieldNames string
+	createTimeFieldNames string
+	deleteTimeFieldNames string
 
 	isgendao bool
 )
@@ -65,9 +65,9 @@ func init() {
 	flag.StringVar(&db, "db", "mysql", `input mysql or postgres or sqlite or sqlserver. consult[https://gorm.io/docs/connecting_to_the_database.html]`)
 	flag.StringVar(&outPath, "outPath", "./dal", `specify a directory for output`)
 	flag.StringVar(&tables, "tables", "", `enter the required data table or leave it blank`)
-	flag.StringVar(&updateTimeFieldName, "updateTimeField", "", `auto update time field name`)
-	flag.StringVar(&createTimeFieldName, "createTimeField", "", `auto create time field name`)
-	flag.StringVar(&deleteTimeFieldName, "deleteField", "", `delete time field name`)
+	flag.StringVar(&updateTimeFieldNames, "updateTimeField", "", `auto update time field name`)
+	flag.StringVar(&createTimeFieldNames, "createTimeField", "", `auto create time field name`)
+	flag.StringVar(&deleteTimeFieldNames, "deleteField", "", `delete time field name`)
 	flag.BoolVar(&isgendao, "isgendao", false, `generate curd func dao`)
 
 	flag.Parse()
@@ -167,22 +167,25 @@ func main() {
 
 func modelOpt() (modelOpts []gen.ModelOpt) {
 	// 软删除默认字段名为:`deleted_at`, 表字段数据类型为: DATETIME
-	if deleteTimeFieldName != "" {
-		softDeleteField := gen.FieldType(deleteTimeFieldName, "gorm.DeletedAt")
-		modelOpts = append(modelOpts, softDeleteField)
+	if deleteTimeFieldNames != "" {
+		for _, deleteTimeFieldName := range strings.Split(deleteTimeFieldNames, ",") {
+			modelOpts = append(modelOpts, gen.FieldType(deleteTimeFieldName, "gorm.DeletedAt"))
+		}
 	}
 	// 自动时间戳默认字段名为:`updated_at`、`created_at, 表字段数据类型为: INT 或 DATETIME
-	if updateTimeFieldName != "" {
-		autoUpdateTimeField := gen.FieldGORMTag(updateTimeFieldName, func(tag field.GormTag) field.GormTag {
-			return field.GormTag{"column": []string{updateTimeFieldName}, "type": []string{"int unsigned"}, "": []string{"autoUpdateTime"}}
-		})
-		modelOpts = append(modelOpts, autoUpdateTimeField)
+	if updateTimeFieldNames != "" {
+		for _, updateTimeFieldName := range strings.Split(updateTimeFieldNames, ",") {
+			modelOpts = append(modelOpts, gen.FieldGORMTag(updateTimeFieldName, func(tag field.GormTag) field.GormTag {
+				return field.GormTag{"column": []string{updateTimeFieldName}, "type": []string{"int unsigned"}, "": []string{"autoUpdateTime"}}
+			}))
+		}
 	}
-	if createTimeFieldName != "" {
-		autoCreateTimeField := gen.FieldGORMTag(createTimeFieldName, func(tag field.GormTag) field.GormTag {
-			return field.GormTag{"column": []string{createTimeFieldName}, "type": []string{"int unsigned"}, "": []string{"autoCreateTime"}}
-		})
-		modelOpts = append(modelOpts, autoCreateTimeField)
+	if createTimeFieldNames != "" {
+		for _, createTimeFieldName := range strings.Split(createTimeFieldNames, ",") {
+			modelOpts = append(modelOpts, gen.FieldGORMTag(createTimeFieldName, func(tag field.GormTag) field.GormTag {
+				return field.GormTag{"column": []string{createTimeFieldName}, "type": []string{"int unsigned"}, "": []string{"autoCreateTime"}}
+			}))
+		}
 	}
 
 	return modelOpts
