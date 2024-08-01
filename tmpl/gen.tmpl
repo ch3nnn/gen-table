@@ -28,8 +28,7 @@ type i{{.ModelStructName}}Dao interface {
 
 	// ------------------------ {{ .ModelStructName }} {{ .TableComment }} ---------------------------------
 	{{ range .Fields }}
-	{{if eq .ColumnComment "" }}{{else}}// {{ .ColumnComment }} {{end}}
-	WhereBy{{.Name}}({{.ColumnName | CamelCase | GoKeywordCase }} {{ .Type | TypeCase }}) func(dao gen.Dao) gen.Dao{{ end }}
+	WhereBy{{.Name}}({{.ColumnName | CamelCase | GoKeywordCase }} {{ .Type | TypeCase }}) func(dao gen.Dao) gen.Dao{{if eq .ColumnComment "" }}{{else}} // {{ .ColumnComment }} {{end}}{{ end }}
 
 	// ------------------------------------
 	// Generate Function
