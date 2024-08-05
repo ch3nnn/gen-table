@@ -10,7 +10,6 @@ import (
 	"gen-table/example/dal/model"
 	"gen-table/example/dal/query"
 
-	"github.com/duke-git/lancet/v2/structs"
 	"gorm.io/gen"
 	"gorm.io/gen/field"
 )
@@ -26,23 +25,14 @@ type iSiteDao interface {
 	// ------------------------ Site  ---------------------------------
 
 	WhereByID(id int64) func(dao gen.Dao) gen.Dao
-
 	WhereByCategoryID(categoryId int64) func(dao gen.Dao) gen.Dao
-
 	WhereByTitle(title string) func(dao gen.Dao) gen.Dao
-
 	WhereByThumb(thumb string) func(dao gen.Dao) gen.Dao
-
 	WhereByDescription(description string) func(dao gen.Dao) gen.Dao
-
 	WhereByURL(url string) func(dao gen.Dao) gen.Dao
-
 	WhereByCreatedAt(createdAt time.Time) func(dao gen.Dao) gen.Dao
-
 	WhereByUpdatedAt(updatedAt time.Time) func(dao gen.Dao) gen.Dao
-
 	WhereByIsUsed(isUsed bool) func(dao gen.Dao) gen.Dao
-
 	WhereByType(type_ string) func(dao gen.Dao) gen.Dao
 
 	// ------------------------------------
@@ -54,7 +44,7 @@ type iSiteDao interface {
 	Create(m *model.Site) (*model.Site, error)
 	Delete(whereFunc ...func(dao gen.Dao) gen.Dao) error
 	DeletePhysical(whereFunc ...func(dao gen.Dao) gen.Dao) error
-	Update(m interface{}, whereFunc ...func(dao gen.Dao) gen.Dao) (*model.Site, error)
+	Update(v interface{}, whereFunc ...func(dao gen.Dao) gen.Dao) (rowsAffected int64, err error)
 	FindCount(whereFunc ...func(dao gen.Dao) gen.Dao) (int64, error)
 	FindOne(whereFunc ...func(dao gen.Dao) gen.Dao) (*model.Site, error)
 	FindAll(whereFunc ...func(dao gen.Dao) gen.Dao) ([]*model.Site, error)
@@ -148,17 +138,14 @@ func (s *siteDao) FindPage(offset int, limit int, orderColumns []field.Expr, whe
 	return s.siteDo.Scopes(whereFunc...).Order(orderColumns...).FindByPage(offset, limit)
 }
 
-func (s *siteDao) Update(m interface{}, whereFunc ...func(dao gen.Dao) gen.Dao) (*model.Site, error) {
-	toMap, err := structs.ToMap(m)
-	if err != nil {
-		return nil, err
+// 注意 当通过 struct 更新时，GORM 只会更新非零字段
+// 如果想确保指定字段被更新，使用 map 来完成更新操作
+func (s *siteDao) Update(v interface{}, whereFunc ...func(dao gen.Dao) gen.Dao) (rowsAffected int64, err error) {
+	if info, err := s.siteDo.Scopes(whereFunc...).Updates(v); err != nil {
+		return info.RowsAffected, err
 	}
 
-	if _, err := s.siteDo.Scopes(whereFunc...).Updates(toMap); err != nil {
-		return nil, err
-	}
-
-	return s.FindOne(whereFunc...)
+	return
 }
 
 func (s *siteDao) Delete(whereFunc ...func(dao gen.Dao) gen.Dao) error {
