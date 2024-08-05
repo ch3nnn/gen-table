@@ -54,7 +54,7 @@ func TestFindAll(t *testing.T) {
 
 func TestFindPage(t *testing.T) {
 	dao := NewSiteDao(context.Background())
-	findPage, count, err := dao.FindPage(0, 1, nil, dao.WhereByID(1))
+	findPage, count, err := dao.FindPage(1, 10, nil, dao.WhereByID(1))
 	if err != nil {
 		return
 	}

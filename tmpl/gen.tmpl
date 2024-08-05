@@ -42,7 +42,7 @@ type i{{.ModelStructName}}Dao interface {
 	FindCount(whereFunc ...func(dao gen.Dao) gen.Dao) (int64, error)
 	FindOne(whereFunc ...func(dao gen.Dao) gen.Dao) (*model.{{.ModelStructName}}, error)
 	FindAll(whereFunc ...func(dao gen.Dao) gen.Dao) ([]*model.{{.ModelStructName}}, error)
-	FindPage(offset int, limit int, orderColumns []field.Expr, whereFunc ...func(dao gen.Dao) gen.Dao) ([]*model.{{.ModelStructName}}, int64, error)
+	FindPage(page int, pageSize int, orderColumns []field.Expr, whereFunc ...func(dao gen.Dao) gen.Dao) ([]*model.{{.ModelStructName}}, int64, error)
 }
 
 type {{ $modelStructNameLowerFirst }}Dao struct {
@@ -78,8 +78,8 @@ func (s *{{ $modelStructNameLowerFirst }}Dao) FindAll(whereFunc ...func(dao gen.
 	return s.{{.ModelStructName| LowerFirst }}Do.Scopes(whereFunc...).Find()
 }
 
-func (s *{{ $modelStructNameLowerFirst }}Dao) FindPage(offset int, limit int, orderColumns []field.Expr, whereFunc ...func(dao gen.Dao) gen.Dao) ([]*model.{{.ModelStructName}}, int64, error) {
-	return s.{{.ModelStructName| LowerFirst }}Do.Scopes(whereFunc...).Order(orderColumns...).FindByPage(offset, limit)
+func (s *{{ $modelStructNameLowerFirst }}Dao) FindPage(page int, pageSize int, orderColumns []field.Expr, whereFunc ...func(dao gen.Dao) gen.Dao) ([]*model.{{.ModelStructName}}, int64, error) {
+	return s.{{.ModelStructName| LowerFirst }}Do.Scopes(whereFunc...).Order(orderColumns...).FindByPage((page-1)*pageSize, pageSize)
 }
 
 // 注意 当通过 struct 更新时，GORM 只会更新非零字段

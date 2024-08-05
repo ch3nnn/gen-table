@@ -48,7 +48,7 @@ type iSiteDao interface {
 	FindCount(whereFunc ...func(dao gen.Dao) gen.Dao) (int64, error)
 	FindOne(whereFunc ...func(dao gen.Dao) gen.Dao) (*model.Site, error)
 	FindAll(whereFunc ...func(dao gen.Dao) gen.Dao) ([]*model.Site, error)
-	FindPage(offset int, limit int, orderColumns []field.Expr, whereFunc ...func(dao gen.Dao) gen.Dao) ([]*model.Site, int64, error)
+	FindPage(page int, pageSize int, orderColumns []field.Expr, whereFunc ...func(dao gen.Dao) gen.Dao) ([]*model.Site, int64, error)
 }
 
 type siteDao struct {
@@ -134,8 +134,8 @@ func (s *siteDao) FindAll(whereFunc ...func(dao gen.Dao) gen.Dao) ([]*model.Site
 	return s.siteDo.Scopes(whereFunc...).Find()
 }
 
-func (s *siteDao) FindPage(offset int, limit int, orderColumns []field.Expr, whereFunc ...func(dao gen.Dao) gen.Dao) ([]*model.Site, int64, error) {
-	return s.siteDo.Scopes(whereFunc...).Order(orderColumns...).FindByPage(offset, limit)
+func (s *siteDao) FindPage(page int, pageSize int, orderColumns []field.Expr, whereFunc ...func(dao gen.Dao) gen.Dao) ([]*model.Site, int64, error) {
+	return s.siteDo.Scopes(whereFunc...).Order(orderColumns...).FindByPage((page-1)*pageSize, pageSize)
 }
 
 // 注意 当通过 struct 更新时，GORM 只会更新非零字段
