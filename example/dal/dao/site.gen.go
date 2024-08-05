@@ -141,11 +141,12 @@ func (s *siteDao) FindPage(offset int, limit int, orderColumns []field.Expr, whe
 // 注意 当通过 struct 更新时，GORM 只会更新非零字段
 // 如果想确保指定字段被更新，使用 map 来完成更新操作
 func (s *siteDao) Update(v interface{}, whereFunc ...func(dao gen.Dao) gen.Dao) (rowsAffected int64, err error) {
-	if info, err := s.siteDo.Scopes(whereFunc...).Updates(v); err != nil {
-		return info.RowsAffected, err
+	info, err := s.siteDo.Scopes(whereFunc...).Updates(v)
+	if err != nil {
+		return rowsAffected, err
 	}
 
-	return
+	return info.RowsAffected, nil
 }
 
 func (s *siteDao) Delete(whereFunc ...func(dao gen.Dao) gen.Dao) error {
