@@ -49,6 +49,8 @@ type iSiteDao interface {
 	FindOne(whereFunc ...func(dao gen.Dao) gen.Dao) (*model.Site, error)
 	FindAll(whereFunc ...func(dao gen.Dao) gen.Dao) ([]*model.Site, error)
 	FindPage(page int, pageSize int, orderColumns []field.Expr, whereFunc ...func(dao gen.Dao) gen.Dao) ([]*model.Site, int64, error)
+	Scan(result interface{}, whereFunc ...func(dao gen.Dao) gen.Dao) (err error)
+	ScanPage(page int, pageSize int, orderColumns []field.Expr, result interface{}, whereFunc ...func(dao gen.Dao) gen.Dao) (count int64, err error)
 }
 
 type siteDao struct {
@@ -161,4 +163,12 @@ func (s *siteDao) DeletePhysical(whereFunc ...func(dao gen.Dao) gen.Dao) error {
 		return err
 	}
 	return nil
+}
+
+func (s *siteDao) Scan(result interface{}, whereFunc ...func(dao gen.Dao) gen.Dao) (err error) {
+	return s.siteDo.Scopes(whereFunc...).Scan(result)
+}
+
+func (s *siteDao) ScanPage(page int, pageSize int, orderColumns []field.Expr, result interface{}, whereFunc ...func(dao gen.Dao) gen.Dao) (count int64, err error) {
+	return s.siteDo.Scopes(whereFunc...).Order(orderColumns...).ScanByPage(result, (page-1)*pageSize, pageSize)
 }

@@ -43,6 +43,8 @@ type i{{.ModelStructName}}Dao interface {
 	FindOne(whereFunc ...func(dao gen.Dao) gen.Dao) (*model.{{.ModelStructName}}, error)
 	FindAll(whereFunc ...func(dao gen.Dao) gen.Dao) ([]*model.{{.ModelStructName}}, error)
 	FindPage(page int, pageSize int, orderColumns []field.Expr, whereFunc ...func(dao gen.Dao) gen.Dao) ([]*model.{{.ModelStructName}}, int64, error)
+	Scan(result interface{}, whereFunc ...func(dao gen.Dao) gen.Dao) (err error)
+	ScanPage(page int, pageSize int, orderColumns []field.Expr, result interface{}, whereFunc ...func(dao gen.Dao) gen.Dao) (count int64, err error)
 }
 
 type {{ $modelStructNameLowerFirst }}Dao struct {
@@ -105,4 +107,12 @@ func (s *{{ $modelStructNameLowerFirst }}Dao) DeletePhysical(whereFunc ...func(d
 		return err
 	}
 	return nil
+}
+
+func (s *{{ $modelStructNameLowerFirst }}Dao) Scan(result interface{}, whereFunc ...func(dao gen.Dao) gen.Dao) (err error) {
+    return s.{{.ModelStructName| LowerFirst }}Do.Scopes(whereFunc...).Scan(result)
+}
+
+func (s *{{ $modelStructNameLowerFirst }}Dao) ScanPage(page int, pageSize int, orderColumns []field.Expr, result interface{}, whereFunc ...func(dao gen.Dao) gen.Dao) (count int64, err error) {
+    return s.{{.ModelStructName| LowerFirst }}Do.Scopes(whereFunc...).Order(orderColumns...).ScanByPage(result, (page-1)*pageSize, pageSize)
 }
