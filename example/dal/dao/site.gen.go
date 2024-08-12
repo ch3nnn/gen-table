@@ -5,6 +5,7 @@
 package dao
 
 import (
+	"context"
 	"time"
 
 	"gen-table/example/dal/model"
@@ -41,6 +42,9 @@ type iSiteDao interface {
 
 	// ------------------------ Site  ---------------------------------
 
+	Debug() iSiteDao
+	WithContext(ctx context.Context) iSiteDao
+
 	Create(m *model.Site) (*model.Site, error)
 	Delete(whereFunc ...func(dao gen.Dao) gen.Dao) error
 	DeletePhysical(whereFunc ...func(dao gen.Dao) gen.Dao) error
@@ -55,6 +59,16 @@ type iSiteDao interface {
 
 type siteDao struct {
 	siteDo query.ISiteDo
+}
+
+func (s *siteDao) Debug() iSiteDao {
+	s.siteDo = s.siteDo.Debug()
+	return s
+}
+
+func (s *siteDao) WithContext(ctx context.Context) iSiteDao {
+	s.siteDo = s.siteDo.WithContext(ctx)
+	return s
 }
 
 func (s *siteDao) WhereByID(id int64) func(dao gen.Dao) gen.Dao {

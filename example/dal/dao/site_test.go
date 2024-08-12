@@ -29,7 +29,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestFindOne(t *testing.T) {
-	dao := NewSiteDao(context.Background())
+	dao := NewSiteDao().Debug().WithContext(context.Background())
 	findOne, err := dao.FindOne([]func(dao gen.Dao) gen.Dao{
 		dao.WhereByID(1),
 		dao.WhereByTitle("ch3nnn Github 开源"),
@@ -42,8 +42,10 @@ func TestFindOne(t *testing.T) {
 }
 
 func TestFindAll(t *testing.T) {
-	dao := NewSiteDao(context.Background())
-	sites, err := dao.FindAll(dao.WhereByID(1))
+	ctx := context.Background()
+	ctx = context.WithValue(ctx, "findAll", "findAll")
+	dao := NewSiteDao().WithContext(ctx)
+	sites, err := dao.WithContext(ctx).FindAll(dao.WhereByID(1))
 	if err != nil {
 		return
 	}
@@ -53,7 +55,7 @@ func TestFindAll(t *testing.T) {
 }
 
 func TestFindPage(t *testing.T) {
-	dao := NewSiteDao(context.Background())
+	dao := NewSiteDao().WithContext(context.Background())
 	findPage, count, err := dao.FindPage(1, 10, nil, dao.WhereByID(1))
 	if err != nil {
 		return

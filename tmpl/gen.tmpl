@@ -6,6 +6,7 @@ package dao
 
 
 import (
+    "context"
 	"time"
 
     {{ .QueryImportPath }}
@@ -35,6 +36,9 @@ type i{{.ModelStructName}}Dao interface {
 
 	// ------------------------ {{.ModelStructName}} {{ .TableComment }} ---------------------------------
 
+	Debug() i{{ .ModelStructName }}Dao
+    WithContext(ctx context.Context) i{{ .ModelStructName }}Dao
+
 	Create(m *model.{{.ModelStructName}}) (*model.{{.ModelStructName}}, error)
 	Delete(whereFunc ...func(dao gen.Dao) gen.Dao) error
 	DeletePhysical(whereFunc ...func(dao gen.Dao) gen.Dao) error
@@ -49,6 +53,16 @@ type i{{.ModelStructName}}Dao interface {
 
 type {{ $modelStructNameLowerFirst }}Dao struct {
 	{{ $modelStructNameLowerFirst }}Do query.I{{ .ModelStructName }}Do
+}
+
+func (s *{{ $modelStructNameLowerFirst }}Dao) Debug() i{{ .ModelStructName }}Dao {
+	s.{{ $modelStructNameLowerFirst }}Do = s.{{ $modelStructNameLowerFirst }}Do.Debug()
+	return s
+}
+
+func (s *{{ $modelStructNameLowerFirst }}Dao) WithContext(ctx context.Context) i{{ .ModelStructName }}Dao {
+	s.{{ $modelStructNameLowerFirst }}Do = s.{{ $modelStructNameLowerFirst }}Do.WithContext(ctx)
+	return s
 }
 
 {{ range .Fields }}

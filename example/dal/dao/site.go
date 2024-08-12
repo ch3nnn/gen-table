@@ -16,10 +16,10 @@ type (
 	}
 )
 
-func NewSiteDao(ctx context.Context) ISiteDao {
+func NewSiteDao() ISiteDao {
 	return &customSiteDao{
 		siteDao{
-			siteDo: query.Site.WithContext(ctx),
+			siteDo: query.Site.WithContext(context.Background()),
 		},
 	}
 }
