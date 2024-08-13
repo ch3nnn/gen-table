@@ -18,27 +18,31 @@ import (
 
 {{ $modelStructNameLowerFirst := .ModelStructName | LowerFirst }}
 {{ $modelStructName := .ModelStructName}}
-var _ I{{.ModelStructName}}Dao = (*{{.ModelStructName | LowerFirst }}Dao)(nil)
+var _ i{{.ModelStructName}}Dao = (*{{.ModelStructName | LowerFirst }}Dao)(nil)
 
-type i{{.ModelStructName}}Dao interface {
+type I{{.ModelStructName}}Dao interface {
+    iWhere{{.ModelStructName}}Func
+    WithContext(ctx context.Context) iCustomGen{{.ModelStructName}}Func
+}
 
-	// ------------------------------------
-	// ColumnName
-	// ------------------------------------
+func (d *custom{{.ModelStructName}}Dao) WithContext(ctx context.Context) iCustomGen{{.ModelStructName}}Func {
+	d.{{ $modelStructNameLowerFirst }}Do = d.{{ $modelStructNameLowerFirst }}Do.WithContext(ctx)
+	return d
+}
 
-	// ------------------------ {{ .ModelStructName }} {{ .TableComment }} ---------------------------------
+// ------------------------------------
+// {{.ModelStructName}} {{ .TableComment }} ColumnName
+// ------------------------------------
+type iWhere{{.ModelStructName}}Func interface {
 	{{ range .Fields }}
 	WhereBy{{.Name}}({{.ColumnName | CamelCase | GoKeywordCase }} {{ .Type | TypeCase }}) func(dao gen.Dao) gen.Dao{{if eq .ColumnComment "" }}{{else}} // {{ .ColumnComment }} {{end}}{{ end }}
 
-	// ------------------------------------
-	// Generate Function
-	// ------------------------------------
+}
 
-	// ------------------------ {{.ModelStructName}} {{ .TableComment }} ---------------------------------
-
-	Debug() i{{ .ModelStructName }}Dao
-    WithContext(ctx context.Context) i{{ .ModelStructName }}Dao
-
+// ------------------------------------
+// {{.ModelStructName}} {{ .TableComment }} Generate Function
+// ------------------------------------
+type iGen{{.ModelStructName}}Func interface {
 	Create(m *model.{{.ModelStructName}}) (*model.{{.ModelStructName}}, error)
 	Delete(whereFunc ...func(dao gen.Dao) gen.Dao) error
 	DeletePhysical(whereFunc ...func(dao gen.Dao) gen.Dao) error
@@ -51,18 +55,14 @@ type i{{.ModelStructName}}Dao interface {
 	ScanPage(page int, pageSize int, orderColumns []field.Expr, result interface{}, whereFunc ...func(dao gen.Dao) gen.Dao) (count int64, err error)
 }
 
+
+type i{{.ModelStructName}}Dao interface {
+    iWhere{{.ModelStructName}}Func
+	iGen{{.ModelStructName}}Func
+}
+
 type {{ $modelStructNameLowerFirst }}Dao struct {
 	{{ $modelStructNameLowerFirst }}Do query.I{{ .ModelStructName }}Do
-}
-
-func (s *{{ $modelStructNameLowerFirst }}Dao) Debug() i{{ .ModelStructName }}Dao {
-	s.{{ $modelStructNameLowerFirst }}Do = s.{{ $modelStructNameLowerFirst }}Do.Debug()
-	return s
-}
-
-func (s *{{ $modelStructNameLowerFirst }}Dao) WithContext(ctx context.Context) i{{ .ModelStructName }}Dao {
-	s.{{ $modelStructNameLowerFirst }}Do = s.{{ $modelStructNameLowerFirst }}Do.WithContext(ctx)
-	return s
 }
 
 {{ range .Fields }}

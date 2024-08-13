@@ -15,18 +15,24 @@ import (
 	"gorm.io/gen/field"
 )
 
-var _ ISiteDao = (*siteDao)(nil)
+var _ iSiteDao = (*siteDao)(nil)
 
-type iSiteDao interface {
+type ISiteDao interface {
+	iWhereSiteFunc
+	WithContext(ctx context.Context) iCustomGenSiteFunc
+}
 
-	// ------------------------------------
-	// ColumnName
-	// ------------------------------------
+func (d *customSiteDao) WithContext(ctx context.Context) iCustomGenSiteFunc {
+	d.siteDo = d.siteDo.WithContext(ctx)
+	return d
+}
 
-	// ------------------------ Site  ---------------------------------
-
-	WhereByID(id int64) func(dao gen.Dao) gen.Dao
-	WhereByCategoryID(categoryId int64) func(dao gen.Dao) gen.Dao
+// ------------------------------------
+// ColumnName => Site
+// ------------------------------------
+type iWhereSiteFunc interface {
+	WhereByID(id int) func(dao gen.Dao) gen.Dao
+	WhereByCategoryID(categoryId int) func(dao gen.Dao) gen.Dao
 	WhereByTitle(title string) func(dao gen.Dao) gen.Dao
 	WhereByThumb(thumb string) func(dao gen.Dao) gen.Dao
 	WhereByDescription(description string) func(dao gen.Dao) gen.Dao
@@ -35,16 +41,12 @@ type iSiteDao interface {
 	WhereByUpdatedAt(updatedAt time.Time) func(dao gen.Dao) gen.Dao
 	WhereByIsUsed(isUsed bool) func(dao gen.Dao) gen.Dao
 	WhereByType(type_ string) func(dao gen.Dao) gen.Dao
+}
 
-	// ------------------------------------
-	// Generate Function
-	// ------------------------------------
-
-	// ------------------------ Site  ---------------------------------
-
-	Debug() iSiteDao
-	WithContext(ctx context.Context) iSiteDao
-
+// ------------------------------------
+// Generate Function => Site
+// ------------------------------------
+type iGenSiteFunc interface {
 	Create(m *model.Site) (*model.Site, error)
 	Delete(whereFunc ...func(dao gen.Dao) gen.Dao) error
 	DeletePhysical(whereFunc ...func(dao gen.Dao) gen.Dao) error
@@ -57,27 +59,22 @@ type iSiteDao interface {
 	ScanPage(page int, pageSize int, orderColumns []field.Expr, result interface{}, whereFunc ...func(dao gen.Dao) gen.Dao) (count int64, err error)
 }
 
+type iSiteDao interface {
+	iWhereSiteFunc
+	iGenSiteFunc
+}
+
 type siteDao struct {
 	siteDo query.ISiteDo
 }
 
-func (s *siteDao) Debug() iSiteDao {
-	s.siteDo = s.siteDo.Debug()
-	return s
-}
-
-func (s *siteDao) WithContext(ctx context.Context) iSiteDao {
-	s.siteDo = s.siteDo.WithContext(ctx)
-	return s
-}
-
-func (s *siteDao) WhereByID(id int64) func(dao gen.Dao) gen.Dao {
+func (s *siteDao) WhereByID(id int) func(dao gen.Dao) gen.Dao {
 	return func(dao gen.Dao) gen.Dao {
 		return dao.Where(query.Site.ID.Eq(id))
 	}
 }
 
-func (s *siteDao) WhereByCategoryID(categoryId int64) func(dao gen.Dao) gen.Dao {
+func (s *siteDao) WhereByCategoryID(categoryId int) func(dao gen.Dao) gen.Dao {
 	return func(dao gen.Dao) gen.Dao {
 		return dao.Where(query.Site.CategoryID.Eq(categoryId))
 	}

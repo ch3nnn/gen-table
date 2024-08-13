@@ -7,15 +7,22 @@ import (
 
 )
 
-type (
-	I{{ .ModelStructName }}Dao interface {
-		i{{ .ModelStructName }}Dao
-	}
+var _ iCustomGen{{ .ModelStructName }}Func = (*custom{{ .ModelStructName }}Dao)(nil)
 
+type (
+	// not edit interface name
+	iCustomGen{{ .ModelStructName }}Func interface {
+		iGen{{ .ModelStructName }}Func
+
+		// custom func ....
+		// ...
+	}
+	// not edit interface name
 	custom{{ .ModelStructName }}Dao struct {
 		{{ .ModelStructName | LowerFirst }}Dao
 	}
 )
+
 
 func New{{ .ModelStructName }}Dao() I{{ .ModelStructName }}Dao {
 	return &custom{{ .ModelStructName }}Dao{

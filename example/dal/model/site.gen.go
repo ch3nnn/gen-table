@@ -12,8 +12,8 @@ const TableNameSite = "site"
 
 // Site mapped from table <site>
 type Site struct {
-	ID          int64      `gorm:"column:id;type:INTEGER" json:"id"`
-	CategoryID  int64      `gorm:"column:category_id;type:int(11)" json:"category_id"`
+	ID          int        `gorm:"column:id;type:INTEGER" json:"id"`
+	CategoryID  int        `gorm:"column:category_id;type:int(11)" json:"category_id"`
 	Title       string     `gorm:"column:title;type:varchar(50)" json:"title"`
 	Thumb       string     `gorm:"column:thumb;type:varchar(200)" json:"thumb"`
 	Description string     `gorm:"column:description;type:varchar(300)" json:"description"`

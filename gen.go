@@ -118,14 +118,14 @@ func main() {
 	// 要先于`ApplyBasic`执行
 	g.WithDataTypeMap(
 		map[string]func(columnType gorm.ColumnType) (dataType string){
-			"INTEGER":   func(columnType gorm.ColumnType) (dataType string) { return "int64" },
-			"int":       func(columnType gorm.ColumnType) (dataType string) { return "int64" },
-			"int2":      func(columnType gorm.ColumnType) (dataType string) { return "int64" },
-			"int4":      func(columnType gorm.ColumnType) (dataType string) { return "int64" },
-			"int8":      func(columnType gorm.ColumnType) (dataType string) { return "int64" },
-			"smallint":  func(columnType gorm.ColumnType) (dataType string) { return "int64" },
-			"mediumint": func(columnType gorm.ColumnType) (dataType string) { return "int64" },
-			"bigint":    func(columnType gorm.ColumnType) (dataType string) { return "int64" },
+			"INTEGER":   func(columnType gorm.ColumnType) (dataType string) { return "int" },
+			"int":       func(columnType gorm.ColumnType) (dataType string) { return "int" },
+			"int2":      func(columnType gorm.ColumnType) (dataType string) { return "int" },
+			"int4":      func(columnType gorm.ColumnType) (dataType string) { return "int" },
+			"int8":      func(columnType gorm.ColumnType) (dataType string) { return "int" },
+			"smallint":  func(columnType gorm.ColumnType) (dataType string) { return "int" },
+			"mediumint": func(columnType gorm.ColumnType) (dataType string) { return "int" },
+			"bigint":    func(columnType gorm.ColumnType) (dataType string) { return "int" },
 			"bool":      func(columnType gorm.ColumnType) (dataType string) { return "bool" },
 			"tinyint": func(columnType gorm.ColumnType) (dataType string) {
 				// mysql tinyint(1) 类型 改为 bool

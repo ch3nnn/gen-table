@@ -6,11 +6,17 @@ import (
 	"gen-table/example/dal/query"
 )
 
-type (
-	ISiteDao interface {
-		iSiteDao
-	}
+var _ iCustomGenSiteFunc = (*customSiteDao)(nil)
 
+type (
+	// not edit interface name
+	iCustomGenSiteFunc interface {
+		iGenSiteFunc
+
+		// custom func ....
+		// ...
+	}
+	// not edit interface name
 	customSiteDao struct {
 		siteDao
 	}
