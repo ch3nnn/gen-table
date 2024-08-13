@@ -28,7 +28,7 @@ func (d *customSiteDao) WithContext(ctx context.Context) iCustomGenSiteFunc {
 }
 
 // ------------------------------------
-// ColumnName => Site
+// Site  ColumnName
 // ------------------------------------
 type iWhereSiteFunc interface {
 	WhereByID(id int) func(dao gen.Dao) gen.Dao
@@ -44,7 +44,7 @@ type iWhereSiteFunc interface {
 }
 
 // ------------------------------------
-// Generate Function => Site
+// Site  Generate Function
 // ------------------------------------
 type iGenSiteFunc interface {
 	Create(m *model.Site) (*model.Site, error)
