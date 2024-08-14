@@ -48,10 +48,11 @@ const (
 )
 
 var (
-	dsn     string
-	outPath string
-	tables  string
-	db      string
+	dsn         string
+	outPath     string
+	tables      string
+	db          string
+	daoFileName string
 
 	updateTimeFieldNames string
 	createTimeFieldNames string
@@ -64,6 +65,7 @@ func init() {
 	flag.StringVar(&dsn, "dsn", "", `consult[https://gorm.io/docs/connecting_to_the_database.html]`)
 	flag.StringVar(&db, "db", "mysql", `input mysql or postgres or sqlite or sqlserver. consult[https://gorm.io/docs/connecting_to_the_database.html]`)
 	flag.StringVar(&outPath, "outPath", "./dal", `specify a directory for output`)
+	flag.StringVar(&daoFileName, "daoFileName", "dao", `dao file name`)
 	flag.StringVar(&tables, "tables", "", `enter the required data table or leave it blank`)
 	flag.StringVar(&updateTimeFieldNames, "updateTimeField", "", `auto update time field name`)
 	flag.StringVar(&createTimeFieldNames, "createTimeField", "", `auto create time field name`)
@@ -235,7 +237,7 @@ func genModels(g *gen.Generator, db *gorm.DB, tableSting string) (models []inter
 
 		// Generate Dao
 		if isgendao {
-			daoPath := path.Join(outPath, "dao")
+			daoPath := path.Join(outPath, daoFileName)
 			if !fileutil.IsExist(daoPath) {
 				if err := fileutil.CreateDir(daoPath); err != nil {
 					return nil, err
@@ -250,7 +252,7 @@ func genModels(g *gen.Generator, db *gorm.DB, tableSting string) (models []inter
 			}()
 			go func() {
 				fileName := model.FileName + ".go"
-				if fileutil.IsExist(path.Join(outPath, "dao", fileName)) {
+				if fileutil.IsExist(path.Join(outPath, daoFileName, fileName)) {
 					log.Printf("generate dao file: %s exists, ignored generation \n", fileName)
 					return
 				}
@@ -314,7 +316,7 @@ func output(tmplText, fileName string, data interface{}) error {
 		return err
 	}
 
-	filePath := path.Join(outPath, "dao", fileName)
+	filePath := path.Join(outPath, daoFileName, fileName)
 	if err := fileutil.WriteBytesToFile(filePath, buf.Bytes()); err != nil {
 		return err
 	}
