@@ -74,19 +74,6 @@ func init() {
 	flag.BoolVar(&isgendao, "isgendao", false, `generate curd func dao`)
 
 	flag.Parse()
-
-	// 获取所有的命令行参数（包括命令本身）
-	args := os.Args
-	// 打印所有的命令行参数
-	command = args[0]
-	for _, arg := range os.Args[1:] {
-		if strings.HasPrefix(arg, "-") {
-			command += fmt.Sprintf(` %s`, arg)
-		} else {
-			command += fmt.Sprintf(` "%s"`, arg)
-		}
-
-	}
 }
 
 func main() {
