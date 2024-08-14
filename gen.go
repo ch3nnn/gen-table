@@ -286,8 +286,16 @@ func output(tmplText, fileName string, data interface{}) error {
 		panic(err)
 	}
 
-	model.QueryImportPath = template.HTML(fmt.Sprintf("\"%s\"", filepath.Join(f.Module.Mod.Path, outPath, "query")))
-	model.ModelImportPath = template.HTML(fmt.Sprintf("\"%s\"", filepath.Join(f.Module.Mod.Path, outPath, "model")))
+	// 记录需要导入的依赖
+	model.ImportPaths = append(model.ImportPaths, template.HTML(fmt.Sprintf("\"%s\"", filepath.Join(f.Module.Mod.Path, outPath, "query"))))
+	model.ImportPaths = append(model.ImportPaths, template.HTML(fmt.Sprintf("\"%s\"", filepath.Join(f.Module.Mod.Path, outPath, "model"))))
+
+	if deleteTimeFieldNames != "" {
+		model.ImportPaths = append(model.ImportPaths, template.HTML(fmt.Sprintf("\"%s\"", "gorm.io/gorm")))
+	}
+	if updateTimeFieldNames != "" || createTimeFieldNames != "" {
+		model.ImportPaths = append(model.ImportPaths, template.HTML(fmt.Sprintf("\"%s\"", "time")))
+	}
 
 	funcMap := map[string]any{
 		"CamelCase":  strutil.CamelCase,

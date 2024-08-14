@@ -7,11 +7,9 @@ package dao
 
 import (
     "context"
-	"time"
 
-    {{ .QueryImportPath }}
-    {{ .ModelImportPath }}
-
+    {{ range .ImportPaths }}
+    {{.}}{{ end }}
 	"gorm.io/gen"
 	"gorm.io/gen/field"
 )
