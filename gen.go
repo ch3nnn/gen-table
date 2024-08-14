@@ -53,6 +53,7 @@ var (
 	tables      string
 	db          string
 	daoFileName string
+	command     string
 
 	updateTimeFieldNames string
 	createTimeFieldNames string
@@ -74,6 +75,18 @@ func init() {
 
 	flag.Parse()
 
+	// 获取所有的命令行参数（包括命令本身）
+	args := os.Args
+	// 打印所有的命令行参数
+	command = args[0]
+	for _, arg := range os.Args[1:] {
+		if strings.HasPrefix(arg, "-") {
+			command += fmt.Sprintf(` %s`, arg)
+		} else {
+			command += fmt.Sprintf(` "%s"`, arg)
+		}
+
+	}
 }
 
 func main() {
@@ -286,9 +299,13 @@ func output(tmplText, fileName string, data interface{}) error {
 		panic(err)
 	}
 
+	// 设置命令字符串
+	model.Command = template.HTML(command)
+	// 设置 dao 包名
+	model.DaoFileName = daoFileName
 	// 记录需要导入的依赖
-	model.ImportPaths = append(model.ImportPaths, template.HTML(fmt.Sprintf("\"%s\"", filepath.Join(f.Module.Mod.Path, outPath, "query"))))
-	model.ImportPaths = append(model.ImportPaths, template.HTML(fmt.Sprintf("\"%s\"", filepath.Join(f.Module.Mod.Path, outPath, "model"))))
+	model.QueryImportPath = template.HTML(fmt.Sprintf("\"%s\"", filepath.Join(f.Module.Mod.Path, outPath, "query")))
+	model.ModelImportPath = template.HTML(fmt.Sprintf("\"%s\"", filepath.Join(f.Module.Mod.Path, outPath, "model")))
 
 	if deleteTimeFieldNames != "" {
 		model.ImportPaths = append(model.ImportPaths, template.HTML(fmt.Sprintf("\"%s\"", "gorm.io/gorm")))

@@ -53,7 +53,11 @@ type Field struct {
 	Relation         *field.Relation
 }
 type QueryStructMeta struct {
-	ImportPaths []template.HTML
+	Command         template.HTML
+	ImportPaths     []template.HTML
+	ModelImportPath template.HTML
+	QueryImportPath template.HTML
+	DaoFileName     string
 
 	Generated       bool   // whether to generate db model
 	FileName        string // generated file name
