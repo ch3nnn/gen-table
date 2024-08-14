@@ -286,8 +286,6 @@ func output(tmplText, fileName string, data interface{}) error {
 		panic(err)
 	}
 
-	// 设置命令字符串
-	model.Command = template.HTML(command)
 	// 设置 dao 包名
 	model.DaoFileName = daoFileName
 	// 记录需要导入的依赖

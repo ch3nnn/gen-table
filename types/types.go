@@ -53,7 +53,6 @@ type Field struct {
 	Relation         *field.Relation
 }
 type QueryStructMeta struct {
-	Command         template.HTML
 	ImportPaths     []template.HTML
 	ModelImportPath template.HTML
 	QueryImportPath template.HTML
