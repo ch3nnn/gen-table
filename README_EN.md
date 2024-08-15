@@ -1,10 +1,10 @@
 # gen-table
 
-[English](README_EN.md) | 简体中文
+English | [简体中文](README.md)
 
-基于 gorm-gen 生成 model、query、dao 代码
+Generate model, query, and dao codes based on gorm-gen
 
-## 一、相关命令
+## 1. Commands
 
 ```shell
 Usage of ./gen-table:
@@ -29,8 +29,7 @@ Usage of ./gen-table:
 
 ```
 
-## 二、示例
-> 生成代码 model、query、dao 层
+## 2. Example
 
 ```shell
 ./gen-table \
