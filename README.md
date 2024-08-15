@@ -30,16 +30,14 @@ Usage of ./gen-table:
 ```
 
 ## 二、示例
-> 生成代码 model、query、dao 层
+
+注意: 需要在 go.mod 文件同级目录下执行
 
 ```shell
 ./gen-table \
 	-dsn "example/test.db?_busy_timeout=5000" \
-	-updateTimeField "update_at" \
-	-createTimeField "create_at" \
 	-tables "site" \
 	-db "sqlite" \
 	-outPath "example/dal" \
-	-daoFile "repo" \
 	-isgendao
 ```

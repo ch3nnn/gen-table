@@ -31,14 +31,13 @@ Usage of ./gen-table:
 
 ## 2. Example
 
+Note: It needs to be executed in the same directory as the go.mo d file.
+
 ```shell
 ./gen-table \
 	-dsn "example/test.db?_busy_timeout=5000" \
-	-updateTimeField "update_at" \
-	-createTimeField "create_at" \
 	-tables "site" \
 	-db "sqlite" \
 	-outPath "example/dal" \
-	-daoFile "repo" \
 	-isgendao
 ```
