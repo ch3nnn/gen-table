@@ -16,7 +16,7 @@ import (
 
 	"gorm.io/plugin/dbresolver"
 
-	"gen-table/example/dal/model"
+	"github.com/ch3nnn/gen-table/example/dal/model"
 )
 
 func newSite(db *gorm.DB, opts ...gen.DOOption) site {

@@ -13,7 +13,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"gen-table/types"
+	"github.com/ch3nnn/gen-table/types"
 
 	"github.com/duke-git/lancet/v2/fileutil"
 	"github.com/duke-git/lancet/v2/strutil"

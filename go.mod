@@ -1,4 +1,4 @@
-module gen-table
+module github.com/ch3nnn/gen-table
 
 go 1.22
 
