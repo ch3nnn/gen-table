@@ -7,6 +7,8 @@
 Usage of ./gen-table:
   -createTimeField string
         auto create time field name
+  -daoFile string
+        specify dao filename (default "dao")
   -db string
         input mysql or postgres or sqlite or sqlserver. consult[https://gorm.io/docs/connecting_to_the_database.html] (default "mysql")
   -deleteField string
@@ -35,5 +37,6 @@ Usage of ./gen-table:
 	-tables "site" \
 	-db "sqlite" \
 	-outPath "example/dal" \
+	-daoFile "repo" \
 	-isgendao
 ```

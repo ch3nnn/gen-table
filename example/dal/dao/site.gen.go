@@ -6,13 +6,13 @@ package dao
 
 import (
 	"context"
-	"time"
 
-	"gen-table/example/dal/model"
-	"gen-table/example/dal/query"
+	"github.com/ch3nnn/gen-table/example/dal/model"
+	"github.com/ch3nnn/gen-table/example/dal/query"
 
 	"gorm.io/gen"
 	"gorm.io/gen/field"
+	"time"
 )
 
 var _ iSiteDao = (*siteDao)(nil)

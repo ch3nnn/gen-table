@@ -66,7 +66,7 @@ func init() {
 	flag.StringVar(&dsn, "dsn", "", `consult[https://gorm.io/docs/connecting_to_the_database.html]`)
 	flag.StringVar(&db, "db", "mysql", `input mysql or postgres or sqlite or sqlserver. consult[https://gorm.io/docs/connecting_to_the_database.html]`)
 	flag.StringVar(&outPath, "outPath", "./dal", `specify a directory for output`)
-	flag.StringVar(&daoFileName, "daoFileName", "dao", `dao file name`)
+	flag.StringVar(&daoFileName, "daoFile", "dao", `specify dao filename`)
 	flag.StringVar(&tables, "tables", "", `enter the required data table or leave it blank`)
 	flag.StringVar(&updateTimeFieldNames, "updateTimeField", "", `auto update time field name`)
 	flag.StringVar(&createTimeFieldNames, "createTimeField", "", `auto create time field name`)
