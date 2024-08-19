@@ -7,6 +7,8 @@ import (
 
 )
 
+{{ $modelStructNameLowerFirst := .ModelStructName | LowerFirst }}
+
 var _ iCustomGen{{ .ModelStructName }}Func = (*custom{{ .ModelStructName }}Dao)(nil)
 
 type (
@@ -23,6 +25,11 @@ type (
 	}
 )
 
+type I{{.ModelStructName}}Dao interface {
+    iWhere{{.ModelStructName}}Func
+    WithContext(ctx context.Context) iCustomGen{{.ModelStructName}}Func
+}
+
 
 func New{{ .ModelStructName }}Dao() I{{ .ModelStructName }}Dao {
 	return &custom{{ .ModelStructName }}Dao{
@@ -30,4 +37,10 @@ func New{{ .ModelStructName }}Dao() I{{ .ModelStructName }}Dao {
 			{{ .ModelStructName | LowerFirst }}Do: query.{{ .ModelStructName }}.WithContext(context.Background()),
 		},
 	}
+}
+
+
+func (d *custom{{.ModelStructName}}Dao) WithContext(ctx context.Context) iCustomGen{{.ModelStructName}}Func {
+	d.{{ $modelStructNameLowerFirst }}Do = d.{{ $modelStructNameLowerFirst }}Do.WithContext(ctx)
+	return d
 }

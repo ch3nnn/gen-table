@@ -7,8 +7,6 @@ package {{.DaoFileName}}
 
 
 import (
-    "context"
-
     {{ .QueryImportPath }}
     {{ .ModelImportPath }}
 
@@ -21,16 +19,6 @@ import (
 {{ $modelStructNameLowerFirst := .ModelStructName | LowerFirst }}
 {{ $modelStructName := .ModelStructName}}
 var _ i{{.ModelStructName}}Dao = (*{{.ModelStructName | LowerFirst }}Dao)(nil)
-
-type I{{.ModelStructName}}Dao interface {
-    iWhere{{.ModelStructName}}Func
-    WithContext(ctx context.Context) iCustomGen{{.ModelStructName}}Func
-}
-
-func (d *custom{{.ModelStructName}}Dao) WithContext(ctx context.Context) iCustomGen{{.ModelStructName}}Func {
-	d.{{ $modelStructNameLowerFirst }}Do = d.{{ $modelStructNameLowerFirst }}Do.WithContext(ctx)
-	return d
-}
 
 // ------------------------------------
 // {{.ModelStructName}} {{ .TableComment }} ColumnName
