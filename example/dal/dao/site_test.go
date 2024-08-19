@@ -8,6 +8,7 @@ package dao
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/ch3nnn/gen-table/example/dal/model"
 	"github.com/ch3nnn/gen-table/example/dal/query"
@@ -90,4 +91,16 @@ func TestCustom_FirstOrInit(t *testing.T) {
 		)
 	assert.NoError(t, err)
 	assert.Equal(t, site, first)
+}
+
+func TestCustom_WhereBetweenByCreatedAt(t *testing.T) {
+	dao := NewSiteDao()
+	site, err := dao.WithContext(context.Background()).
+		FindOne(
+			dao.WhereByID(2),
+			dao.WhereBetweenByCreatedAt(time.Now(), time.Now().Add(1*time.Hour)),
+		)
+	assert.NoError(t, err)
+	assert.Nil(t, site, site)
+
 }

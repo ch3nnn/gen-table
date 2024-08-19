@@ -5,27 +5,16 @@
 package dao
 
 import (
-	"context"
+	"time"
 
 	"github.com/ch3nnn/gen-table/example/dal/model"
 	"github.com/ch3nnn/gen-table/example/dal/query"
 
 	"gorm.io/gen"
 	"gorm.io/gen/field"
-	"time"
 )
 
 var _ iSiteDao = (*siteDao)(nil)
-
-type ISiteDao interface {
-	iWhereSiteFunc
-	WithContext(ctx context.Context) iCustomGenSiteFunc
-}
-
-func (d *customSiteDao) WithContext(ctx context.Context) iCustomGenSiteFunc {
-	d.siteDo = d.siteDo.WithContext(ctx)
-	return d
-}
 
 // ------------------------------------
 // Site  ColumnName

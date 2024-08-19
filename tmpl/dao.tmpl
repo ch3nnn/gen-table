@@ -12,23 +12,28 @@ import (
 var _ iCustomGen{{ .ModelStructName }}Func = (*custom{{ .ModelStructName }}Dao)(nil)
 
 type (
+    // I{{.ModelStructName}}Dao not edit interface name
+    I{{.ModelStructName}}Dao interface {
+        iWhere{{.ModelStructName}}Func
+        WithContext(ctx context.Context) iCustomGen{{.ModelStructName}}Func
+
+        // TODO Custom WhereFunc ....
+        // ...
+    }
+
 	// not edit interface name
 	iCustomGen{{ .ModelStructName }}Func interface {
 		iGen{{ .ModelStructName }}Func
 
-		// custom func ....
+		// TODO Custom DaoFunc ....
 		// ...
 	}
+
 	// not edit interface name
 	custom{{ .ModelStructName }}Dao struct {
 		{{ .ModelStructName | LowerFirst }}Dao
 	}
 )
-
-type I{{.ModelStructName}}Dao interface {
-    iWhere{{.ModelStructName}}Func
-    WithContext(ctx context.Context) iCustomGen{{.ModelStructName}}Func
-}
 
 
 func New{{ .ModelStructName }}Dao() I{{ .ModelStructName }}Dao {
